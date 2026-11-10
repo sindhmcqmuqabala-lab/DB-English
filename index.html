@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>English Questions Dashboard — Past Papers Portal</title>
+<style>
+:root{
+  --bg:#f1f5f9; --surface:#ffffff; --surface-2:#f8fafc; --border:#e2e8f0; --border-strong:#cbd5e1;
+  --text:#0f172a; --text-2:#334155; --muted:#64748b; --muted-2:#94a3b8;
+  --blue:#2563eb; --blue-soft:#eff6ff; --blue-border:#bfdbfe; --indigo:#4f46e5; --indigo-soft:#eef2ff;
+  --emerald:#059669; --emerald-soft:#ecfdf5; --emerald-border:#a7f3d0;
+  --amber-bg:#fef3c7; --amber-text:#92400e;
+  --shadow:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+  --shadow-md:0 6px 20px rgba(15,23,42,.08);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1220; --surface:#111827; --surface-2:#0f172a; --border:#1f2937; --border-strong:#334155;
+    --text:#f8fafc; --text-2:#e2e8f0; --muted:#94a3b8; --muted-2:#64748b;
+    --blue:#60a5fa; --blue-soft:#1e3a5f; --blue-border:#1e40af; --indigo:#818cf8; --indigo-soft:#1e1b4b;
+    --emerald:#34d399; --emerald-soft:#064e3b; --emerald-border:#065f46;
+    --amber-bg:#451a03; --amber-text:#fde68a;
+    --shadow:0 1px 3px rgba(0,0,0,.3); --shadow-md:0 6px 20px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,[role="button"],select,input{font:inherit}
+button,select,input[type="text"]{min-height:38px}
+a{color:var(--blue)}
+/* Header */
+.topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+.topbar-inner{max-width:1600px;margin:0 auto;padding:14px 20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:40px;height:40px;border-radius:10px;background:var(--blue);display:grid;place-items:center;color:#fff;flex-shrink:0}
+.brand h1{margin:0;font-size:20px;letter-spacing:-.02em;font-weight:800;line-height:1}
+.brand p{margin:2px 0 0;font-size:12.5px;color:var(--muted);font-weight:500}
+.top-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.nav{display:flex;gap:2px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);padding:4px;border-radius:999px}
+.nav button{border:0;background:transparent;padding:8px 14px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.nav button.active{background:var(--surface);color:var(--blue);box-shadow:var(--shadow);border:1px solid var(--border)}
+.upload-btn{display:inline-flex;align-items:center;gap:8px;background:var(--blue-soft);border:1px solid var(--blue-border);color:var(--blue);font-weight:700;font-size:13.5px;padding:9px 14px;border-radius:10px;cursor:pointer}
+.upload-btn:hover{filter:brightness(.98)}
+
+/* Layout */
+.wrap{max-width:1600px;margin:0 auto;padding:20px}
+.view{display:none}
+.view.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view.active{animation:none}}
+
+/* Overview */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0 22px}
+@media(max-width:760px){.stats-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;gap:16px;align-items:center;box-shadow:var(--shadow)}
+.stat-icon{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;flex-shrink:0}
+.stat-icon.blue{background:#dbeafe;color:#2563eb}.stat-icon.indigo{background:#e0e7ff;color:#4f46e5}.stat-icon.amber{background:#fef3c7;color:#d97706}
+@media(prefers-color-scheme:dark){.stat-icon.blue{background:#1e3a5f}.stat-icon.indigo{background:#312e81}.stat-icon.amber{background:#451a03}}
+.stat-card label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stat-card strong{font-size:32px;line-height:1;font-weight:900;letter-spacing:-.03em;display:block;margin-top:4px}
+.section-title{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:0}
+.section-sub{color:var(--muted);margin:6px 0 0;font-size:14.5px}
+
+/* Dashboard grid */
+.dash-grid{display:grid;grid-template-columns:260px 1fr 300px;gap:18px;align-items:start}
+@media(max-width:1100px){.dash-grid{grid-template-columns:240px 1fr}.right-col{grid-column:1/-1;position:static!important}}
+@media(max-width:720px){.dash-grid{grid-template-columns:1fr}.left-col,.right-col{position:static!important}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.left-col,.right-col{position:sticky;top:92px}
+.card-pad{padding:16px}
+.card-head{display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;font-weight:800;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2)}
+.sort-toggle{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:10px}
+.sort-toggle button{flex:1;border:0;background:transparent;padding:7px;border-radius:7px;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.sort-toggle button.active{background:var(--surface);color:var(--blue);box-shadow:var(--shadow)}
+.topic-list{display:flex;flex-direction:column;gap:4px;max-height:62vh;overflow:auto;padding-right:4px}
+.topic-btn{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;border:1px solid transparent;background:transparent;padding:10px 11px;border-radius:10px;cursor:pointer;color:var(--text-2);font-size:13.5px;font-weight:500}
+.topic-btn:hover{background:var(--surface-2)}
+.topic-btn.active{background:var(--blue-soft);border-color:var(--blue-border);color:var(--blue);font-weight:700}
+.badge{font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted);flex-shrink:0;margin-left:8px}
+.topic-btn.active .badge{background:#bfdbfe;color:#1e40af;border-color:transparent}
+@media(prefers-color-scheme:dark){.topic-btn.active .badge{background:#1e40af;color:#fff}}
+
+/* Middle */
+.repo-head{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+.repo-head h2{margin:0;font-size:26px;letter-spacing:-.03em;font-weight:900;line-height:1}
+.repo-head p{margin:6px 0 0;color:var(--muted);font-weight:600;font-size:13.5px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0 12px;min-width:280px;flex:1;max-width:360px;box-shadow:var(--shadow)}
+.search-box input{border:0;outline:0;background:transparent;width:100%;padding:10px 0;color:var(--text)}
+.filter-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.filter-bar select{flex:1;min-width:140px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 10px;color:var(--text);font-weight:600}
+.active-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid}
+.chip button{border:0;background:transparent;cursor:pointer;line-height:1;padding:2px;font-weight:900}
+.q-list{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 18px 16px;box-shadow:var(--shadow)}
+.q-card:hover{box-shadow:var(--shadow-md)}
+.q-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.q-top strong{font-size:15px}
+.q-id{font-size:12px;color:var(--muted-2)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-2)}
+.tag.subject{background:var(--amber-bg);color:var(--amber-text);border-color:transparent}
+.tag.year{background:var(--blue-soft);color:var(--blue);border-color:var(--blue-border)}
+.q-text{white-space:pre-wrap;font-size:14.8px;line-height:1.65;color:var(--text);font-weight:500;margin:0}
+.answer{margin-top:14px;background:var(--emerald-soft);border:1px solid var(--emerald-border);border-radius:12px;padding:12px 13px}
+.answer span{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:800;color:var(--emerald);display:block;margin-bottom:4px}
+.answer p{margin:0;font-weight:600;font-size:13.8px;color:var(--text);white-space:pre-wrap}
+.empty{padding:44px 20px;text-align:center}
+.empty h3{margin:8px 0 4px}
+
+/* Right col */
+.dash-hero{padding:18px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.dash-hero h3{margin:0;font-size:18px;font-weight:900}
+.year-row{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:0;padding:8px 6px;border-radius:10px;cursor:pointer;text-align:left}
+.year-row:hover{background:var(--surface-2)}
+.year-row.selected{background:var(--emerald-soft);outline:1px solid var(--emerald-border)}
+.bar-track{flex:1;height:9px;background:var(--border);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;background:var(--blue);border-radius:999px;transition:width .4s ease}
+.year-row.selected .bar-fill{background:var(--emerald)}
+.year-label{width:44px;font-size:12.5px;font-weight:700;color:var(--text-2)}
+.year-count{width:28px;text-align:right;font-size:12.5px;font-weight:800;color:var(--muted)}
+
+/* Trend */
+.trend-head{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:end;box-shadow:var(--shadow)}
+.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media(max-width:900px){.trend-grid{grid-template-columns:1fr}}
+.bars{display:flex;align-items:flex-end;gap:8px;height:300px;padding-top:28px;overflow-x:auto}
+.bar-col{flex:1;min-width:42px;display:flex;flex-direction:column;align-items:center;height:100%}
+.bar-col .col-wrap{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;position:relative}
+.bar-col .val{position:absolute;top:-22px;font-size:12px;font-weight:800;color:var(--text-2);opacity:0;transition:.15s}
+.bar-col:hover .val{opacity:1}
+.bar{width:100%;max-width:52px;background:#3b82f6;border-radius:6px 6px 2px 2px;min-height:2px}
+.bar-col label{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:8px}
+.line-wrap{height:300px;position:relative;padding:10px 0 26px}
+.helper{font-size:12.5px;color:var(--muted)}
+.scroll-thin::-webkit-scrollbar{height:6px;width:6px}.scroll-thin::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:999px}
+.placeholder{max-width:560px;margin:40px auto;text-align:center;padding:36px 24px}
+.placeholder .icon{width:72px;height:72px;border-radius:999px;background:var(--emerald-soft);display:grid;place-items:center;margin:0 auto 16px;color:var(--emerald)}
+.btn-primary{background:var(--emerald);color:#fff;border:0;padding:11px 18px;border-radius:10px;font-weight:800;cursor:pointer}
+.footer-note{max-width:1600px;margin:0 auto;padding:0 20px 28px;color:var(--muted);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div><h1>Past Papers Portal</h1><p>English Questions Dashboard</p></div>
+    </div>
+    <div class="top-actions">
+      <nav class="nav" aria-label="Main views">
+        <button data-tab="overview">Overview</button>
+        <button data-tab="trend">Trend</button>
+        <button data-tab="dashboard" class="active">Dashboard</button>
+        <button data-tab="performance">Performance</button>
+        <button data-tab="strategy">Strategy &amp; Roadmap</button>
+      </nav>
+      <label class="upload-btn" for="csvFile">⬆ Upload CSV</label>
+      <input id="csvFile" type="file" accept=".csv" hidden>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- OVERVIEW -->
+  <section id="view-overview" class="view">
+    <h2 class="section-title">Dataset Overview</h2>
+    <p class="section-sub">A high-level summary of all questions in your dataset. Upload a CSV in the header to replace the sample data.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon blue">🗄️</div><div><label>Total Questions</label><strong id="ovTotal">0</strong></div></div>
+      <div class="stat-card"><div class="stat-icon indigo">🧩</div><div><label>Unique Topics</label><strong id="ovTopics">0</strong></div></div>
+      <div class="stat-card"><div class="stat-icon amber">📊</div><div><label>Years Covered</label><strong id="ovYears">0</strong></div></div>
+    </div>
+    <div class="card card-pad">
+      <h3 style="margin:0 0 8px">What you can do here</h3>
+      <p style="margin:0;color:var(--muted);line-height:1.7">Browse every question in the <b>Dashboard</b>, filter by topic and year, search inside question text and answers, and use <b>Trend</b> to see how often topics appear over time. The sample set below covers Spellings, Synonyms, Error Spotting, Voice, Sentence Classification, and Idioms from 2013–2024 — replace it anytime with your own CSV (columns: Year, S#, Name, ANS, Topic, Sub Topic, Subject).</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button class="btn-primary" style="background:var(--blue)" onclick="switchTab('dashboard')">Open Dashboard →</button>
+        <button class="upload-btn" onclick="document.getElementById('csvFile').click()">Upload your CSV</button>
+      </div>
+    </div>
+    <div id="ovTopicBreakdown" style="margin-top:18px"></div>
+  </section>
+
+  <!-- TREND -->
+  <section id="view-trend" class="view">
+    <div class="trend-head">
+      <div><h2 class="section-title" style="display:flex;gap:8px;align-items:center">↗ Chronological Trend Analysis</h2><p class="section-sub">Visualize the appearance and frequency of topics over the years.</p></div>
+      <div style="min-width:260px;flex:1;max-width:320px"><label for="trendTopic" style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:800;color:var(--muted)">Filter by Topic</label><select id="trendTopic" style="width:100%;margin-top:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px;font-weight:600"></select></div>
+    </div>
+    <div class="trend-grid">
+      <div class="card card-pad"><h3 style="margin:0 0 6px;font-size:12px;letter-spacing:.07em;text-transform:uppercase">Volume by Year (Bar)</h3><div id="barChart" class="bars scroll-thin"></div></div>
+      <div class="card card-pad"><h3 style="margin:0 0 6px;font-size:12px;letter-spacing:.07em;text-transform:uppercase">Trend Over Time (Line)</h3><div class="line-wrap" id="lineChart"></div><p class="helper">Hover points to see counts. Years are shown chronologically, oldest first.</p></div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="view active">
+    <div class="dash-grid">
+      <aside class="card left-col"><div class="card-pad">
+        <div class="card-head">⧉ Topics</div>
+        <div class="sort-toggle"><button id="sortAlpha" class="active">A–Z</button><button id="sortCount">Count ↓</button></div>
+        <div id="topicList" class="topic-list scroll-thin"></div>
+        <p class="helper" style="margin-top:10px">Click a topic to filter. Click again to clear.</p>
+      </div></aside>
+
+      <div>
+        <div class="repo-head"><div><h2>Question Repository</h2><p id="resultCount">Total 0 Questions</p></div>
+          <div class="search-box"><span aria-hidden="true">🔍</span><input id="searchInput" type="text" placeholder="Search questions or answers…"><button id="clearSearch" style="display:none;border:0;background:transparent;cursor:pointer;font-size:18px;line-height:1" aria-label="Clear search">×</button></div>
+        </div>
+        <div class="filter-bar"><span style="font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Filter By</span><select id="topicSelect" aria-label="Filter by topic"></select><select id="yearSelect" aria-label="Filter by year"></select></div>
+        <div id="activeFilters" class="active-filters"></div>
+        <div id="qList" class="q-list"></div>
+      </div>
+
+      <aside class="card right-col">
+        <div class="dash-hero"><p style="margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800">Dashboard</p><h3 style="margin-top:4px">Subject: <span id="dashSubject" style="color:var(--indigo)">English</span></h3><p style="margin:10px 0 0"><span style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:800">Total Questions</span><br><strong id="dashTotal" style="font-size:32px;line-height:1">0</strong></p><div id="dashTopicNote"></div></div>
+        <div class="card-pad"><p style="margin:0 0 10px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:800">Yearly Distribution</p><div id="yearBars"></div><p class="helper" style="text-align:center;margin-top:12px">Click a year to filter questions</p></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- PERFORMANCE -->
+  <section id="view-performance" class="view"><div class="card placeholder"><div class="icon">◎</div><h2 class="section-title">Performance Tracking</h2><p class="section-sub" style="max-width:42ch;margin:10px auto 0">This feature is coming soon. Once mock testing is active, you’ll be able to track scores, accuracy rates, and weak topics here.</p><button class="btn-primary" style="margin-top:20px" onclick="switchTab('dashboard')">Return to Dashboard</button></div></section>
+
+  <!-- STRATEGY -->
+  <section id="view-strategy" class="view"><div class="card placeholder" style="max-width:680px"><div class="icon" style="background:var(--indigo-soft);color:var(--indigo)">🧭</div><h2 class="section-title">Strategy &amp; Roadmap</h2><p class="section-sub" style="max-width:52ch;margin:10px auto 0">Start with high-frequency topics from the Dashboard, review yearly trends to spot repeating patterns, then drill into one topic at a time using the filters. Upload your full past-paper CSV to turn this sample into your complete revision plan.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px"><button class="btn-primary" style="background:var(--blue)" onclick="switchTab('trend')">View Trends</button><button class="btn-primary" onclick="switchTab('dashboard')">Browse Questions</button></div></div></section>
+</div>
+
+<div class="footer-note"><span>Sample data: 8 English questions • CSV format: Year, S#, Name, ANS, Topic, Sub Topic, Subject</span><span id="statusMsg"></span></div>
+
+<script>
+var initialData=[
+{Year:"2013","S#":"23",Name:"Choose the correctly spelled word:\n(A) Desqueiting\n(B) Disqiuteting\n(C) Disquieting\n(D) Desqeteing",ANS:"(C) Disquieting",Topic:"Spellings","Sub Topic":"",Subject:"English"},
+{Year:"2013","S#":"13",Name:"Synonyms Succinct\n(A) Concise\n(B) Tranquil\n(C) Ratify\n(D) Slowly",ANS:"(A) Concise",Topic:"Synonyms","Sub Topic":"",Subject:"English"},
+{Year:"2013","S#":"5",Name:"The school is within hundred yards from my house",ANS:"hundred yards",Topic:"Error Spotting","Sub Topic":"",Subject:"English"},
+{Year:"2013","S#":"1",Name:"Why did he defraud you of your earnings (Passive Voice). Choose the correct Active Voice from the given combinations?\n(A) Why I was defrauded of my earnings.\n(B) Why were you defrauded of your earnings\n(C) Why was I defrauded of my earnings,\n(D) Why was he defrauded of his earnings.…",ANS:"(B) Why were you defrauded of your earnings",Topic:"Active & Passive Voice","Sub Topic":"",Subject:"English"},
+{Year:"2023","S#":"17",Name:"Choose the Complex sentence out of the given options.\n(A) I will give you your present after you eat your dinner\n(B) He did not want to go to the party, yet he went anyway\n(C) The bridge is very long\n(D) None of the above",ANS:"(A) I will give you your present after you eat your dinner",Topic:"Sentence Classification","Sub Topic":"Structure",Subject:"English"},
+{Year:"2023","S#":"18",Name:"Which one of the options given below, correctly combines the following two sentences into a Compound sentence?\n• The sky was clear.\n• The sun was setting.\n(A) The sky was clear while the sun was setting\n(B) The sky was clear, for the sun was setting\n(C) The sky was clear, and the sun was setting\n(D) None of the above",ANS:"(C) The sky was clear, and the sun was setting",Topic:"Sentence Classification","Sub Topic":"Syntax",Subject:"English"},
+{Year:"2024","S#":"19",Name:"Meaning of the idiom: Make a bee line\n(A) Go straight to\n(B) Stand in a queue\n(C) Look for freebies\n(D) Put the bees in line",ANS:"(A) Go straight to",Topic:"Proverbs & Idioms","Sub Topic":"",Subject:"English"},
+{Year:"2024","S#":"20",Name:"Meaning of the idiom: Talking twenty to the dozen\n(A) Talking too much\n(B) Talking very fast\n(C) Whispering\n(D) Shouting",ANS:"(B) Talking very fast",Topic:"Proverbs & Idioms","Sub Topic":"",Subject:"English"}
+];
+var state={data:initialData.slice(),selectedTopic:null,selectedYear:null,search:"",activeTab:"dashboard",trendTopic:null,sortMode:"alpha"};
+function esc(s){return String(s||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function topicStats(){var m={};state.data.forEach(function(d){if(d.Topic)m[d.Topic]=(m[d.Topic]||0)+1});return m}
+function getTopics(){var stats=topicStats();var keys=Object.keys(stats);if(state.sortMode==="count")keys.sort(function(a,b){return stats[b]-stats[a]||a.localeCompare(b)});else keys.sort(function(a,b){return a.localeCompare(b)});return keys}
+function getYears(){var s={};state.data.forEach(function(d){if(d.Year)s[d.Year]=1});return Object.keys(s).sort(function(a,b){return b.localeCompare(a)})}
+function filtered(){return state.data.filter(function(d){var mt=!state.selectedTopic||d.Topic===state.selectedTopic;var my=!state.selectedYear||d.Year===state.selectedYear;var q=state.search.trim().toLowerCase();var ms=!q||(d.Name&&d.Name.toLowerCase().indexOf(q)>-1)||(d.ANS&&d.ANS.toLowerCase().indexOf(q)>-1);return mt&&my&&ms})}
+function switchTab(tab){state.activeTab=tab;document.querySelectorAll(".nav button").forEach(function(b){b.classList.toggle("active",b.dataset.tab===tab)});document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active")});var el=document.getElementById("view-"+tab);if(el)el.classList.add("active");if(tab==="trend")renderTrend();if(tab==="overview")renderOverview();window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll(".nav button").forEach(function(b){b.addEventListener("click",function(){switchTab(b.dataset.tab)})});
+function renderOverview(){document.getElementById("ovTotal").textContent=state.data.length;document.getElementById("ovTopics").textContent=getTopics().length;document.getElementById("ovYears").textContent=getYears().length;var stats=topicStats();var topics=getTopics();var html='<div class="card card-pad"><h3 style="margin:0 0 12px">Topic breakdown</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">'+topics.map(function(t){return '<button onclick="pickTopic(\''+esc(t).replace(/'/g,"\\'")+'\')" style="text-align:left;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer"><strong style="display:block;font-size:13.5px">'+esc(t)+'</strong><span style="color:var(--muted);font-size:12.5px">'+stats[t]+' question'+(stats[t]===1?'':'s')+'</span></button>'}).join("")+'</div></div>';document.getElementById("ovTopicBreakdown").innerHTML=html}
+function pickTopic(t){state.selectedTopic=t;switchTab("dashboard");renderAll()}
+function renderSelectors(){var topics=getTopics();var years=getYears();var ts=document.getElementById("topicSelect");ts.innerHTML='<option value="">All Topics</option>'+topics.map(function(t){return '<option value="'+esc(t)+'"'+(state.selectedTopic===t?' selected':'')+'>'+esc(t)+'</option>'}).join("");var ys=document.getElementById("yearSelect");ys.innerHTML='<option value="">All Years</option>'+years.map(function(y){return '<option value="'+esc(y)+'"'+(state.selectedYear===y?' selected':'')+'>'+esc(y)+'</option>'}).join("");var tt=document.getElementById("trendTopic");tt.innerHTML='<option value="">All Topics (Overall)</option>'+topics.map(function(t){return '<option value="'+esc(t)+'"'+(state.trendTopic===t?' selected':'')+'>'+esc(t)+'</option>'}).join("")}
+function renderTopics(){var stats=topicStats();var topics=getTopics();var el=document.getElementById("topicList");if(!topics.length){el.innerHTML='<p class="helper">No topics found.</p>';return}el.innerHTML=topics.map(function(t){var active=state.selectedTopic===t;return '<button class="topic-btn'+(active?' active':'')+'" data-topic="'+esc(t)+'"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(t)+'</span><span class="badge">'+stats[t]+'</span></button>'}).join("");el.querySelectorAll(".topic-btn").forEach(function(b){b.addEventListener("click",function(){var t=b.getAttribute("data-topic");state.selectedTopic=state.selectedTopic===t?null:t;renderAll()})})}
+function renderQuestions(){var list=filtered();document.getElementById("resultCount").textContent="Total "+list.length+" Question"+(list.length===1?"":"s")+(state.selectedTopic||state.selectedYear||state.search?" (filtered from "+state.data.length+")":"");var el=document.getElementById("qList");if(!list.length){el.innerHTML='<div class="card empty"><div style="font-size:28px">📄</div><h3>No questions found</h3><p class="helper">Adjust your filters or select a different topic.</p><button class="btn-primary" style="background:var(--blue);margin-top:12px" onclick="clearAll()">Clear all filters</button></div>';return}el.innerHTML=list.map(function(item,idx){var tags='<span class="tag subject">'+esc(item.Subject||"General")+'</span>';if(item.Topic)tags+='<span class="tag">Topic: '+esc(item.Topic)+'</span>';if(item["Sub Topic"])tags+='<span class="tag">Subtopic: '+esc(item["Sub Topic"])+'</span>';if(item.Year)tags+='<span class="tag year">Source: '+esc(item.Year)+'</span>';var ans=item.ANS&&item.ANS.trim()?'<div class="answer"><span>Answer</span><p>'+esc(item.ANS)+'</p></div>':"";return '<article class="q-card"><div class="q-top"><strong>Q No. '+esc(item["S#"]||String(idx+1))+'</strong>'+(item["S#"]?'<span class="q-id">ID: '+esc(String(item["S#"]).padStart(4,"0"))+'</span>':"")+'</div><div class="tags">'+tags+'</div><p class="q-text">'+esc(item.Name||"No Question Text Provided")+'</p>'+ans+'</article>'}).join("")}
+function renderActiveFilters(){var el=document.getElementById("activeFilters");var parts=[];if(state.selectedTopic||state.selectedYear||state.search){parts.push('<span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;color:var(--muted)">Active:</span>');if(state.selectedTopic)parts.push('<span class="chip" style="background:var(--indigo-soft);color:var(--indigo);border-color:var(--border)">Topic: '+esc(state.selectedTopic)+' <button onclick="clearTopic()" aria-label="Clear topic">×</button></span>');if(state.selectedYear)parts.push('<span class="chip" style="background:var(--emerald-soft);color:var(--emerald);border-color:var(--emerald-border)">Year: '+esc(state.selectedYear)+' <button onclick="clearYear()" aria-label="Clear year">×</button></span>');if(state.search)parts.push('<span class="chip" style="background:var(--surface-2);color:var(--text-2);border-color:var(--border)">Search: “'+esc(state.search)+'” <button onclick="clearSearchFn()" aria-label="Clear search">×</button></span>');parts.push('<button onclick="clearAll()" style="border:0;background:transparent;color:var(--muted);font-weight:700;cursor:pointer;text-decoration:underline">Clear All</button>')}el.innerHTML=parts.join("")}
+function clearTopic(){state.selectedTopic=null;renderAll()} function clearYear(){state.selectedYear=null;renderAll()} function clearSearchFn(){state.search="";document.getElementById("searchInput").value="";document.getElementById("clearSearch").style.display="none";renderAll()} function clearAll(){state.selectedTopic=null;state.selectedYear=null;clearSearchFn()}
+function renderDashboard(){var base=state.data.filter(function(d){return !state.selectedTopic||d.Topic===state.selectedTopic});document.getElementById("dashTotal").textContent=base.length;document.getElementById("dashSubject").textContent=base.length?(base[0].Subject||"Mixed"):"N/A";document.getElementById("dashTopicNote").innerHTML=state.selectedTopic?'<span style="display:inline-block;margin-top:8px;background:var(--indigo-soft);color:var(--indigo);padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700">Topic: '+esc(state.selectedTopic)+'</span>':"";var years=getYears();var counts=years.map(function(y){return {year:y,count:base.filter(function(d){return d.Year===y}).length}}).filter(function(x){return x.count>0});var max=Math.max.apply(null,counts.map(function(c){return c.count}).concat([1]));var el=document.getElementById("yearBars");if(!counts.length){el.innerHTML='<p class="helper">No year data available.</p>';return}el.innerHTML=counts.map(function(c){var sel=state.selectedYear===c.year;var w=Math.round(c.count/max*100);return '<button class="year-row'+(sel?' selected':'')+'" data-year="'+esc(c.year)+'"><span class="year-label">'+esc(c.year)+'</span><span class="bar-track"><span class="bar-fill" style="display:block;width:'+w+'%"></span></span><span class="year-count">'+c.count+'</span></button>'}).join("");el.querySelectorAll(".year-row").forEach(function(b){b.addEventListener("click",function(){var y=b.getAttribute("data-year");state.selectedYear=state.selectedYear===y?null:y;renderAll()})})}
+function renderTrend(){renderSelectors();var years=getYears().slice().sort(function(a,b){return a.localeCompare(b)});var counts=years.map(function(y){return {year:y,count:state.data.filter(function(d){return d.Year===y&&(!state.trendTopic||d.Topic===state.trendTopic)}).length}});var max=Math.max.apply(null,counts.map(function(c){return c.count}).concat([1]));var barEl=document.getElementById("barChart");if(!counts.length){barEl.innerHTML='<p class="helper">No yearly data available.</p>'}else{barEl.innerHTML=counts.map(function(c){var h=Math.max(c.count/max*100,c.count>0?2:0);return '<div class="bar-col"><div class="col-wrap"><span class="val">'+c.count+'</span><div class="bar" style="height:'+h+'%"></div></div><label>'+esc(String(c.year).substring(0,4))+'</label></div>'}).join("")}var lineEl=document.getElementById("lineChart");if(!counts.length){lineEl.innerHTML='<p class="helper">No yearly data available.</p>';return}var points=counts.map(function(c,i){var x=counts.length>1?(i/(counts.length-1))*100:50;var y=100-(c.count/max)*88-6;return x+","+y}).join(" ");var circles=counts.map(function(c,i){var x=counts.length>1?(i/(counts.length-1))*100:50;var y=100-(c.count/max)*88-6;return '<g><circle cx="'+x+'" cy="'+y+'" r="3.2" fill="var(--surface)" stroke="#059669" stroke-width="2"><title>'+esc(c.year)+': '+c.count+'</title></circle><text x="'+x+'" y="'+(y-7)+'" font-size="5" text-anchor="middle" font-weight="700" fill="var(--text-2)">'+c.count+'</text></g>'}).join("");var labels=counts.map(function(c,i){var show=counts.length<=10||i%2===0||i===counts.length-1;if(!show)return '<span style="width:0;overflow:hidden"></span>';return '<span style="flex:1;text-align:center;font-size:11.5px;color:var(--muted);font-weight:600">'+esc(String(c.year).substring(0,4))+'</span>'}).join("");lineEl.innerHTML='<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:240px;overflow:visible"><line x1="0" y1="25" x2="100" y2="25" stroke="var(--border)" stroke-width="0.6" stroke-dasharray="2 2"/><line x1="0" y1="50" x2="100" y2="50" stroke="var(--border)" stroke-width="0.6" stroke-dasharray="2 2"/><line x1="0" y1="75" x2="100" y2="75" stroke="var(--border)" stroke-width="0.6" stroke-dasharray="2 2"/><line x1="0" y1="94" x2="100" y2="94" stroke="var(--border-strong)" stroke-width="0.8"/><polyline fill="none" stroke="#059669" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" points="'+points+'"/>'+circles+'</svg><div style="display:flex;margin-top:6px">'+labels+'</div>'}
+function renderAll(){renderSelectors();renderTopics();renderQuestions();renderActiveFilters();renderDashboard();if(state.activeTab==="overview")renderOverview();if(state.activeTab==="trend")renderTrend();document.getElementById("sortAlpha").classList.toggle("active",state.sortMode==="alpha");document.getElementById("sortCount").classList.toggle("active",state.sortMode==="count")}
+document.getElementById("searchInput").addEventListener("input",function(e){state.search=e.target.value;document.getElementById("clearSearch").style.display=state.search?"block":"none";renderQuestions();renderActiveFilters()});
+document.getElementById("clearSearch").addEventListener("click",clearSearchFn);
+document.getElementById("topicSelect").addEventListener("change",function(e){state.selectedTopic=e.target.value||null;renderAll()});
+document.getElementById("yearSelect").addEventListener("change",function(e){state.selectedYear=e.target.value||null;renderAll()});
+document.getElementById("trendTopic").addEventListener("change",function(e){state.trendTopic=e.target.value||null;renderTrend()});
+document.getElementById("sortAlpha").addEventListener("click",function(){state.sortMode="alpha";renderAll()});
+document.getElementById("sortCount").addEventListener("click",function(){state.sortMode="count";renderAll()});
+function parseCSV(text){var rows=[];var row=[];var cell="";var inQ=false;for(var i=0;i<text.length;i++){var ch=text[i];var nx=text[i+1];if(ch==='"'){if(inQ&&nx==='"'){cell+='"';i++}else inQ=!inQ}else if(ch===','&&!inQ){row.push(cell);cell=""}else if((ch==='\n'||(ch==='\r'&&nx==='\n'))&&!inQ){if(ch==='\r')i++;row.push(cell);if(row.some(function(c){return c.trim()!==""}))rows.push(row);row=[];cell=""}else cell+=ch}if(row.length||cell){row.push(cell);if(row.some(function(c){return c.trim()!==""}))rows.push(row)}if(rows.length<2)return[];var headers=rows[0].map(function(h){return h.trim()});var data=[];for(var r=1;r<rows.length;r++){var obj={};for(var j=0;j<headers.length;j++)obj[headers[j]]=rows[r][j]?rows[r][j].trim():"";if(obj.Year&&typeof obj.Year==="string")obj.Year=obj.Year.replace("-DEC","");if(obj.Year||obj.Topic)data.push(obj)}return data}
+document.getElementById("csvFile").addEventListener("change",function(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){var parsed=parseCSV(ev.target.result);var msg=document.getElementById("statusMsg");if(parsed.length){state.data=parsed;state.selectedTopic=null;state.selectedYear=null;state.trendTopic=null;state.search="";document.getElementById("searchInput").value="";renderAll();msg.textContent="Loaded "+parsed.length+" questions from "+file.name;switchTab("dashboard")}else{msg.textContent="Could not parse CSV — check headers include Year, Name, ANS, Topic."}};reader.readAsText(file);e.target.value=""});
+renderAll();
+</script>
+</body>
+</html>
