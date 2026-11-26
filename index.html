@@ -56,6 +56,11 @@ html[data-theme="dark"]{--bg:#0b1220;--surface:#111827;--surface-2:#0f172a;--bor
 .card.db3 .icon{background:#ede9fe;color:#7c3aed}
 .card.db3 .btn{background:#7c3aed}
 .card.db3 .btn:hover{background:#6d28d9}
+.section-title{font-size:22px;font-weight:800;margin:32px 0 14px}
+.section-title:first-of-type{margin-top:8px}
+.card.app .icon{background:#ede9fe;color:#7c3aed}
+.card.app .btn{background:#7c3aed}
+.card.app .btn:hover{background:#6d28d9}
 .note{text-align:center;color:var(--muted);font-size:13px;margin-top:24px}
 footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
 </style>
@@ -66,9 +71,10 @@ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
   <header>
     <div class="mark">E</div>
     <h1>English Dashboards</h1>
-    <p>Past-paper English MCQs, in three dashboards. Pick one — it opens in a new tab.</p>
+    <p>Past-paper English MCQs, dashboards and quiz apps. Pick one — it opens in a new tab.</p>
   </header>
 
+  <h2 class="section-title">Dashboards</h2>
   <div class="cards">
     <section class="card db1">
       <div class="icon">&#128214;</div>
@@ -107,7 +113,22 @@ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
     </section>
   </div>
 
-  <p class="note">All three buttons open in a new tab.</p>
+  <h2 class="section-title">Apps</h2>
+  <div class="cards">
+    <section class="card app">
+      <div class="icon">&#10067;</div>
+      <h2>Quiz App 2025</h2>
+      <p>CCE-2025 Screening Test, 6 June 2026. 200 MCQs in individual subject quizzes, or the full paper.</p>
+      <ul>
+        <li>Individual subjects: English 41, PA 43, EDS 40, Islamiat 31, Ability 20, CA 15, GK 10</li>
+        <li>Timer, score, review and retry wrong</li>
+        <li>Full Paper — 200 questions, 200 minutes</li>
+      </ul>
+      <a class="btn" href="./apps/quiz-2025/" target="_blank" rel="noopener">Open Quiz App 2025 &nearr;</a>
+    </section>
+  </div>
+
+  <p class="note">All buttons open in a new tab.</p>
   <footer>English Dashboards &middot; DB-English</footer>
 </div>
 <script>
