@@ -47,16 +47,26 @@ header p{margin:10px auto 0;color:var(--muted);font-size:16px;max-width:560px}
 .card.db1 .btn:hover{background:var(--blue-dark)}
 .card.db2 .btn{background:var(--emerald)}
 .card.db2 .btn:hover{background:var(--emerald-dark)}
+html[data-theme="light"]{--bg:#f1f5f9;--surface:#ffffff;--surface-2:#f8fafc;--border:#e2e8f0;--text:#0f172a;--text-2:#334155;--muted:#64748b;--blue:#2563eb;--blue-dark:#1d4ed8;--blue-soft:#eff6ff;--emerald:#059669;--emerald-dark:#047857;--emerald-soft:#ecfdf5}
+html[data-theme="dark"]{--bg:#0b1220;--surface:#111827;--surface-2:#0f172a;--border:#1f2937;--text:#f8fafc;--text-2:#e2e8f0;--muted:#94a3b8;--blue:#60a5fa;--blue-dark:#3b82f6;--blue-soft:#1e3a5f;--emerald:#34d399;--emerald-dark:#10b981;--emerald-soft:#064e3b}
+.topbar{display:flex;justify-content:flex-end}
+.theme-btn{padding:8px 14px;font-size:13px;font-weight:800;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);cursor:pointer;white-space:nowrap}
+.theme-btn:hover{background:var(--surface-2)}
+@media (min-width:900px){.cards{grid-template-columns:repeat(3,1fr)}}
+.card.db3 .icon{background:#ede9fe;color:#7c3aed}
+.card.db3 .btn{background:#7c3aed}
+.card.db3 .btn:hover{background:#6d28d9}
 .note{text-align:center;color:var(--muted);font-size:13px;margin-top:24px}
 footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="topbar"><button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle light and dark mode">&#9789; Dark</button></div>
   <header>
     <div class="mark">E</div>
     <h1>English Dashboards</h1>
-    <p>Past-paper English MCQs, in two dashboards. Pick one — it opens in a new tab.</p>
+    <p>Past-paper English MCQs, in three dashboards. Pick one — it opens in a new tab.</p>
   </header>
 
   <div class="cards">
@@ -83,10 +93,38 @@ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
       </ul>
       <a class="btn" href="./db-2/" target="_blank" rel="noopener">Open DB-2 &nearr;</a>
     </section>
+
+    <section class="card db3">
+      <div class="icon">&#127919;</div>
+      <h2>DB-3 — Strategy DB</h2>
+      <p>SPSC English Past Papers Visualizer. Strategy, deep dives, practice quiz and a 6-week study roadmap.</p>
+      <ul>
+        <li>Year &amp; topic deep dive</li>
+        <li>Interactive practice quiz</li>
+        <li>6-week study roadmap</li>
+      </ul>
+      <a class="btn" href="./db-3/" target="_blank" rel="noopener">Open DB-3 &nearr;</a>
+    </section>
   </div>
 
-  <p class="note">Both buttons open in a new tab.</p>
+  <p class="note">All three buttons open in a new tab.</p>
   <footer>English Dashboards &middot; DB-English</footer>
 </div>
+<script>
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme",theme);
+  var btn=document.getElementById("themeBtn");
+  if(btn) btn.textContent=theme==="dark"?"\u2600\uFE0F Light":"\u263E Dark";
+  try{localStorage.setItem("dbeng-theme",theme);}catch(e){}
+}
+(function(){
+  var saved=null; try{saved=localStorage.getItem("dbeng-theme");}catch(e){}
+  applyTheme(saved||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+  document.getElementById("themeBtn").addEventListener("click",function(){
+    var cur=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";
+    applyTheme(cur==="dark"?"light":"dark");
+  });
+})();
+</script>
 </body>
 </html>

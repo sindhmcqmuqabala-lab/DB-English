@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>SPSC English — Past Papers Visualizer (Strategy DB)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--border2:#f1f5f9;--text:#0f172a;--text2:#334155;--muted:#64748b;--indigo:#4f46e5;--indigo-dark:#4338ca;--indigo-soft:#eef2ff;--purple:#7c3aed;--purple-soft:#f5f3ff;--emerald:#059669;--emerald-soft:#ecfdf5;--amber:#d97706;--amber-soft:#fffbeb;--rose:#e11d48;--rose-soft:#fff1f2;--shadow:0 1px 3px rgba(15,23,42,.06)}
+@media (prefers-color-scheme: dark){:root{--bg:#0b1220;--surface:#111827;--border:#1f2937;--border2:#1f2937;--text:#f8fafc;--text2:#e2e8f0;--muted:#94a3b8;--indigo:#818cf8;--indigo-dark:#6366f1;--indigo-soft:#1e1b4b;--purple:#a78bfa;--purple-soft:#2e1065;--emerald:#34d399;--emerald-soft:#064e3b;--amber:#fbbf24;--amber-soft:#451a03;--rose:#fb7185;--rose-soft:#4c0519}}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.layout{min-height:100vh;display:flex;flex-direction:column}
+@media (min-width:768px){.layout{flex-direction:row}}
+aside{width:100%;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;flex-shrink:0}
+@media (min-width:768px){aside{width:320px}}
+.brand{padding:24px;border-bottom:1px solid var(--border2);background:linear-gradient(to right,#eef2ff80,#faf5ff80)}
+.brand-top{display:flex;align-items:center;gap:12px}
+.brand-ic{background:var(--indigo);padding:10px;border-radius:12px;color:#fff;font-size:22px;box-shadow:0 4px 10px rgba(79,70,229,.3)}
+.brand h1{margin:0;font-weight:800;font-size:18px;letter-spacing:-.01em}
+.brand p{margin:0;font-size:11px;color:var(--indigo);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.db-status{margin-top:16px;background:var(--surface);border:1px solid var(--border);padding:12px;border-radius:12px;display:flex;align-items:center;justify-content:space-between}
+.dot{width:10px;height:10px;border-radius:999px;background:#10b981;display:inline-block;margin-right:6px}
+.db-status span{font-size:12px;font-weight:700;color:var(--text2)}
+.import-btn{font-size:10px;font-weight:800;background:var(--indigo-soft);color:var(--indigo);padding:6px 10px;border-radius:8px;border:0}
+.import-btn:hover{background:#e0e7ff}
+nav{padding:16px;display:flex;flex-direction:column;gap:6px}
+.nav-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;font-size:14px;font-weight:700;border:0;background:transparent;color:var(--text2);text-align:left}
+.nav-btn:hover{background:var(--bg)}
+.nav-btn.active{background:var(--indigo);color:#fff;box-shadow:0 4px 10px rgba(79,70,229,.25)}
+.nav-btn .lbl{display:flex;align-items:center;gap:12px}
+.badge{background:#fef3c7;color:#92400e;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
+.nav-btn.active .badge{background:#fff;color:var(--indigo)}
+.mastery{margin:16px;padding:16px;background:var(--bg);border-radius:16px;border:1px solid var(--border2)}
+.mastery .row{display:flex;justify-content:space-between;margin-bottom:8px}
+.mastery .row span{font-size:11px;font-weight:800;text-transform:uppercase;color:var(--muted)}
+.mastery .row b{font-size:12px;color:var(--indigo)}
+.bar{width:100%;background:#e2e8f0;height:10px;border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(to right,#6366f1,#9333ea);border-radius:999px;transition:width .5s}
+.mastery p{font-size:11px;color:var(--muted);margin:8px 0 0;text-align:center}
+main{flex:1;display:flex;flex-direction:column;overflow-y:auto}
+header.top{background:var(--surface);border-bottom:1px solid var(--border2);padding:24px;display:flex;flex-direction:column;gap:8px}
+@media (min-width:640px){header.top{flex-direction:row;align-items:center;justify-content:space-between}}
+header.top .kicker{font-size:11px;font-weight:800;color:var(--indigo);letter-spacing:.08em;text-transform:uppercase}
+header.top h2{margin:0;font-size:24px;font-weight:800}
+html[data-theme="light"]{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--border2:#f1f5f9;--text:#0f172a;--text2:#334155;--muted:#64748b;--indigo:#4f46e5;--indigo-dark:#4338ca;--indigo-soft:#eef2ff;--purple:#7c3aed;--purple-soft:#f5f3ff;--emerald:#059669;--emerald-soft:#ecfdf5;--amber:#d97706;--amber-soft:#fffbeb;--rose:#e11d48;--rose-soft:#fff1f2}
+html[data-theme="dark"]{--bg:#0b1220;--surface:#111827;--border:#1f2937;--border2:#1f2937;--text:#f8fafc;--text2:#e2e8f0;--muted:#94a3b8;--indigo:#818cf8;--indigo-dark:#6366f1;--indigo-soft:#1e1b4b;--purple:#a78bfa;--purple-soft:#2e1065;--emerald:#34d399;--emerald-soft:#064e3b;--amber:#fbbf24;--amber-soft:#451a03;--rose:#fb7185;--rose-soft:#4c0519}
+.theme-btn{padding:8px 14px;font-size:13px;font-weight:800;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);white-space:nowrap}
+.theme-btn:hover{background:var(--bg)}
+.status-ok{font-size:12px;font-weight:800;color:var(--emerald);text-align:right}
+.status-ok small{display:block;color:var(--muted);font-weight:600}
+.tab{padding:24px;display:flex;flex-direction:column;gap:24px}
+.grid4{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:640px){.grid4{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.grid4{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--surface);padding:20px;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.stat{display:flex;align-items:center;justify-content:space-between}
+.stat .k{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat h3{font-size:30px;font-weight:800;margin:4px 0}
+.stat .s{font-size:11px;color:var(--muted)}
+.stat .s b{color:var(--emerald)}
+.stat .ic{padding:12px;border-radius:12px;font-size:22px}
+.ic.indigo{background:var(--indigo-soft);color:var(--indigo)}
+.ic.green{background:var(--emerald-soft);color:var(--emerald)}
+.ic.purple{background:var(--purple-soft);color:var(--purple)}
+.ic.amber{background:var(--amber-soft);color:var(--amber)}
+.grid-charts{display:grid;grid-template-columns:1fr;gap:24px}
+@media (min-width:1024px){.grid-charts{grid-template-columns:8fr 4fr}}
+.card h4{margin:0;font-size:18px;font-weight:800}
+.card .sub{font-size:12px;color:var(--muted);margin:4px 0 0}
+.chartbox{height:256px;margin-top:16px;position:relative}
+.chartbox.tall{height:224px}
+.pill{background:var(--indigo-soft);color:var(--indigo);font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:4px}
+.legend{margin-top:8px;border-top:1px solid var(--border2);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.legend .li{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700}
+.legend .li .n{display:flex;align-items:center;gap:8px;color:var(--text2)}
+.legend .li .n i{width:10px;height:10px;border-radius:999px;display:inline-block}
+.center-num{position:absolute;inset:0;display:grid;place-content:center;pointer-events:none;text-align:center}
+.center-num b{font-size:24px;font-weight:900}
+.center-num span{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.spotlight{background:linear-gradient(135deg,#1e1b4b,#0f172a);color:#fff;padding:24px;border-radius:16px;position:relative;overflow:hidden}
+.spotlight .tag{background:rgba(99,102,241,.25);color:#c7d2fe;font-size:11px;font-weight:800;padding:4px 12px;border-radius:999px}
+.spotlight h3{font-size:24px;margin:12px 0 8px}
+.spotlight p{color:#cbd5e1;font-size:14px;line-height:1.7;max-width:640px;margin:0}
+.spotlight .row{display:flex;flex-direction:column;gap:16px}
+@media (min-width:768px){.spotlight .row{flex-direction:row;align-items:center;justify-content:space-between}}
+.spotlight .cta{background:#fff;color:#1e1b4b;padding:12px 24px;border-radius:12px;font-weight:800;font-size:14px;border:0;display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
+.spotlight .cta:hover{background:#f1f5f9}
+/* deep dive */
+.dd{display:grid;grid-template-columns:1fr;gap:24px}
+@media (min-width:1024px){.dd{grid-template-columns:4fr 8fr}}
+.dd .col{display:flex;flex-direction:column;gap:24px}
+.sel-btn{width:100%;text-align:left;padding:12px;border-radius:12px;font-size:12px;font-weight:800;border:1px solid var(--border);background:var(--surface);color:var(--text2);margin-top:8px}
+.sel-btn.active{background:var(--indigo-soft);color:#1e1b4b;border-color:#c7d2fe}
+.sel-btn .r{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sel-btn .share{background:#e0e7ff;color:#1e3a8a;padding:2px 8px;border-radius:4px;font-size:10px;white-space:nowrap}
+.year-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.year-btn{padding:10px;border-radius:12px;font-size:12px;font-weight:800;border:1px solid var(--border);background:var(--surface);color:var(--text2)}
+.year-btn.active{background:var(--purple-soft);color:#4c1d95;border-color:#ddd6fe}
+.rule{display:flex;gap:12px;background:var(--bg);padding:16px;border-radius:12px;border:1px solid var(--border2);font-size:14px;color:var(--text2);margin-top:12px}
+.rule .n{background:var(--indigo);color:#fff;width:20px;height:20px;border-radius:999px;flex-shrink:0;display:grid;place-items:center;font-size:11px;font-weight:800;margin-top:2px}
+.rule p{margin:0;line-height:1.6}
+.ph-grid{display:grid;grid-template-columns:1fr;gap:16px;padding-top:8px}
+@media (min-width:768px){.ph-grid{grid-template-columns:1fr 1fr}}
+.ph{padding:16px;border-radius:12px;font-size:12px;line-height:1.6}
+.ph.rose{background:#fff1f2;border:1px solid #ffe4e6;color:#881337}
+.ph.green{background:#ecfdf5;border:1px solid #d1fae5;color:#064e3b}
+.ph b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.diff{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800}
+.diff.hard{background:#ffe4e6;color:#9f1239}
+.diff.med{background:#fef3c7;color:#92400e}
+/* practice */
+.prac{display:grid;grid-template-columns:1fr;gap:24px}
+@media (min-width:1024px){.prac{grid-template-columns:8fr 4fr}}
+.prac .col{display:flex;flex-direction:column;gap:24px}
+.filters{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
+.filters .sel{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);padding:6px 12px;border-radius:12px;font-size:12px;font-weight:800}
+.filters select{background:transparent;border:0;font-size:12px;font-weight:800;color:var(--text);outline:none}
+.reset-btn{display:flex;align-items:center;gap:4px;background:#fff1f2;color:#be123c;padding:6px 12px;border-radius:12px;font-size:12px;font-weight:800;border:0}
+.reset-btn:hover{background:#ffe4e6}
+.qcard{position:relative;overflow:hidden}
+.qcard:before{content:"";position:absolute;top:0;left:0;width:8px;height:100%;background:var(--indigo)}
+.qmeta{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border2);padding-bottom:16px;flex-wrap:wrap;gap:8px}
+.qtag{background:#e0e7ff;color:#1e3a8a;font-size:12px;font-weight:800;padding:4px 10px;border-radius:8px}
+.qtag.p{background:#f3e8ff;color:#6b21a8;font-size:11px}
+.qcount{font-size:12px;font-weight:700;color:var(--muted)}
+.qtext{font-size:19px;font-weight:800;line-height:1.6;margin:20px 0}
+.opt{width:100%;text-align:left;padding:16px;border-radius:12px;font-size:14px;font-weight:700;border:1px solid var(--border);background:var(--surface);color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.opt:hover:not(:disabled){border-color:#cbd5e1;background:var(--bg)}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:#10b981;background:#ecfdf5;color:#064e3b}
+.opt.wrong{border-color:#f43f5e;background:#fff1f2;color:#881337}
+.opt.sel{border-color:var(--indigo);background:var(--indigo-soft)}
+.explain{background:var(--bg);border:1px solid var(--border2);padding:20px;border-radius:12px;margin-top:16px}
+.explain b{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#1e1b4b;display:block;margin-bottom:6px}
+.explain p{font-size:12px;color:var(--text2);margin:0;line-height:1.7}
+.qfoot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border2);padding-top:20px;margin-top:20px;gap:8px;flex-wrap:wrap}
+.qfoot button{padding:8px 20px;font-size:12px;font-weight:800;border-radius:12px;border:0}
+.qfoot .prev{background:#f1f5f9;color:var(--text2)}
+.qfoot .next{background:var(--indigo);color:#fff}
+.qfoot button:disabled{opacity:.5}
+.qfoot .score{font-size:12px;font-weight:800;color:var(--muted)}
+.ref{display:flex;gap:12px;font-size:12px;margin-top:16px}
+.ref .bk{width:36px;height:48px;flex-shrink:0;border-radius:6px;display:grid;place-items:center;font-weight:800;font-size:11px}
+.ref b{display:block;color:var(--text)}
+.ref p{margin:2px 0 0;font-size:11px;color:var(--muted);line-height:1.5}
+.portal{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:12px;margin-top:12px;text-decoration:none;color:var(--text)}
+.portal:hover{background:#f1f5f9}
+.portal b{font-size:12px;display:block}
+.portal p{font-size:10px;color:var(--muted);margin:2px 0 0}
+.portal span{color:var(--muted)}
+/* roadmap */
+.rm-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.timeline{position:relative;border-left:2px solid var(--border);padding-left:24px;margin-left:16px;display:flex;flex-direction:column;gap:32px}
+.week{position:relative}
+.week .num{position:absolute;left:-35px;top:6px;background:var(--indigo);color:#fff;font-size:10px;font-weight:900;width:24px;height:24px;border-radius:999px;display:grid;place-items:center}
+.week h4{margin:0;font-size:16px;font-weight:800}
+.week .dur{font-size:12px;color:var(--muted)}
+.tasks{display:grid;grid-template-columns:1fr;gap:16px;margin-top:12px}
+@media (min-width:768px){.tasks{grid-template-columns:1fr 1fr}}
+.task{padding:16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.task:hover{border-color:#cbd5e1}
+.task.done{background:var(--indigo-soft);border-color:#c7d2fe}
+.task .box{width:20px;height:20px;border-radius:6px;border:1px solid #cbd5e1;flex-shrink:0;display:grid;place-items:center;margin-top:2px;font-size:12px;color:#fff}
+.task.done .box{background:var(--indigo);border-color:var(--indigo)}
+.task b{font-size:12px;display:block}
+.task p{font-size:11px;color:var(--muted);margin:4px 0 0;line-height:1.5}
+footer{margin-top:auto;background:var(--surface);border-top:1px solid var(--border2);padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+.backlink{margin:0 0 8px;font-size:13px}
+.backlink a{color:var(--indigo);text-decoration:none}
+.empty{padding:48px 24px;text-align:center}
+.empty h3{margin:12px 0 4px;font-size:18px}
+.empty p{font-size:12px;color:var(--muted);margin:0}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div>
+      <div class="brand">
+        <div class="brand-top">
+          <div class="brand-ic">&#128214;</div>
+          <div><h1>SPSC English</h1><p>Past Papers Visualizer</p></div>
+        </div>
+        <div class="db-status">
+          <span><span class="dot"></span><span id="dbStatus">Default Bank Loaded</span></span>
+          <label class="import-btn">&#11014; Import CSV<input type="file" accept=".csv" id="csvInput" class="hidden"></label>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-tab="overview"><span class="lbl">&#128214; Overview Dashboard</span><span>&#8250;</span></button>
+        <button class="nav-btn" data-tab="deepdive"><span class="lbl">&#128200; Year &amp; Topic Deep Dive</span><span>&#8250;</span></button>
+        <button class="nav-btn" data-tab="practice"><span class="lbl">&#10067; Practice Repository</span><span class="badge" id="practiceCount">10 Qs</span></button>
+        <button class="nav-btn" data-tab="roadmap"><span class="lbl">&#128197; 6-Week Study Roadmap</span><span>&#8250;</span></button>
+      </nav>
+    </div>
+    <div class="mastery">
+      <div class="row"><span>Mastery Index</span><b id="masteryPct">25%</b></div>
+      <div class="bar"><i id="masteryBar" style="width:25%"></i></div>
+      <p id="masteryText">2 of 8 study strategies completed</p>
+    </div>
+  </aside>
+
+  <main>
+    <header class="top">
+      <div>
+        <span class="kicker">SPSC past-paper database manager</span>
+        <h2 id="tabTitle">SPSC English Analytics Overview</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle light and dark mode">&#9789; Dark</button>
+        <div class="status-ok"><small>Current Status</small>&#10003; Ready for Practice</div>
+      </div>
+    </header>
+
+    <!-- OVERVIEW -->
+    <section class="tab" id="tab-overview">
+      <div class="grid4">
+        <div class="card stat"><div><div class="k">Total MCQ Pool</div><h3 id="statTotal">10</h3><div class="s">Past &amp; custom imported</div></div><div class="ic indigo">&#128 layers;</div></div>
+        <div class="card stat"><div><div class="k">Grammar Mastery</div><h3 id="statMastery">25%</h3><div class="s"><b>Active progress</b></div></div><div class="ic green">&#10003;</div></div>
+        <div class="card stat"><div><div class="k">Practice Accuracy</div><h3 id="statAccuracy">0%</h3><div class="s" id="statAccuracySub">0 correct of 0</div></div><div class="ic purple">&#127942;</div></div>
+        <div class="card stat"><div><div class="k">Study Duration</div><h3>6 Weeks</h3><div class="s"><b style="color:var(--indigo)">Structured layout</b></div></div><div class="ic amber">&#128197;</div></div>
+      </div>
+
+      <div class="grid-charts">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+            <div><h4>Year-on-Year SPSC English Weightage</h4><p class="sub">Overall count of English MCQs tested across past papers (2013-2024)</p></div>
+            <span class="pill">&#8599; Trending Up</span>
+          </div>
+          <div class="chartbox"><canvas id="yearChart"></canvas></div>
+          <p class="sub" style="border-top:1px solid var(--border2);padding-top:12px;margin-top:16px">&#9432; SPSC has significantly increased English MCQs in combined competitive exams from 20 to almost 50 questions post-2021.</p>
+        </div>
+        <div class="card">
+          <h4>Sub-Topic Distribution</h4>
+          <p class="sub">Mastery distribution based on grammar classifications</p>
+          <div class="chartbox tall"><canvas id="topicChart"></canvas><div class="center-num"><div><b id="donutTotal">10</b><br><span>Total Questions</span></div></div></div>
+          <div class="legend" id="topicLegend"></div>
+        </div>
+      </div>
+
+      <div class="spotlight">
+        <div class="row">
+          <div>
+            <span class="tag">SPSC Syllabus Alert</span>
+            <h3>Wren &amp; Martin and Advanced Grammatical Syntaxes</h3>
+            <p>Over 75% of prepositions and voice questions in SPSC are curated from Wren &amp; Martin's High School Grammar &amp; Composition. Switch to the Practice Repository to attempt simulated questions or deep dive into year-wise patterns.</p>
+          </div>
+          <button class="cta" id="startPracticeBtn">&#10022; Start Practice Quiz</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEEP DIVE -->
+    <section class="tab hidden" id="tab-deepdive">
+      <div class="dd">
+        <div class="col">
+          <div class="card">
+            <h4 style="font-size:16px">&#128 layers; Select Sub-Topic</h4>
+            <div id="topicSelectors"></div>
+          </div>
+          <div class="card">
+            <h4 style="font-size:16px">&#128197; Select SPSC Year</h4>
+            <div class="year-grid" id="yearSelectors"></div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border2);padding-bottom:16px;gap:12px;flex-wrap:wrap">
+              <div><span style="font-size:10px;text-transform:uppercase;font-weight:900;color:var(--indigo);letter-spacing:.08em">Topic Spotlight</span><h3 style="margin:0;font-size:20px;font-weight:800" id="ddTopicName"></h3></div>
+              <span class="pill" id="ddTopicShare"></span>
+            </div>
+            <h4 style="font-size:14px;margin:20px 0 0">&#128214; SPSC High-Yield Grammar Rules</h4>
+            <div id="ddRules"></div>
+            <div class="ph-grid">
+              <div class="ph rose"><b>Common SPSC Pitfalls</b><span id="ddPitfalls"></span></div>
+              <div class="ph green"><b>SPSC Exam Hacks</b><span id="ddHacks"></span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border2);padding-bottom:12px;gap:12px;flex-wrap:wrap">
+              <div><span style="font-size:10px;text-transform:uppercase;font-weight:900;color:var(--purple);letter-spacing:.08em">Year Insight</span><h3 style="margin:0;font-size:18px;font-weight:800" id="ddYearName"></h3></div>
+              <span class="diff med" id="ddYearDiff"></span>
+            </div>
+            <p style="font-size:14px;color:var(--text2);line-height:1.7;margin:16px 0 0"><strong>Paper Focus Areas:</strong> <span id="ddYearFocus"></span></p>
+            <p style="background:var(--purple-soft);padding:12px;border-radius:8px;color:var(--text);font-weight:700;font-size:12px;margin:12px 0 0">&#10022; <strong>Prep recommendation:</strong> <span id="ddYearHack"></span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section class="tab hidden" id="tab-practice">
+      <div class="prac">
+        <div class="col">
+          <div class="card filters">
+            <div style="display:flex;flex-wrap:wrap;gap:12px">
+              <label class="sel">Topic: <select id="practiceTopic"><option value="All Topics">All Topics</option></select></label>
+              <label class="sel">Year: <select id="practiceYear"><option value="All Years">All Years</option></select></label>
+            </div>
+            <button class="reset-btn" id="resetScoreBtn">&#8635; Reset Quiz Score</button>
+          </div>
+          <div id="practiceArea"></div>
+        </div>
+        <div class="col">
+          <div class="card">
+            <h4 style="font-size:16px;border-bottom:1px solid var(--border2);padding-bottom:12px">&#128214; Essential References</h4>
+            <div class="ref"><div class="bk" style="background:#fef3c7;color:#92400e">W&amp;M</div><div><b>Wren &amp; Martin</b><p>Primary SPSC source for Prepositions, Speech &amp; Active/Passive Rules.</p></div></div>
+            <div class="ref"><div class="bk" style="background:#dbeafe;color:#1e40af">Swan</div><div><b>Practical English Usage</b><p>Michael Swan's handbook. Master complicated syntaxes &amp; error spotting.</p></div></div>
+          </div>
+          <div class="card">
+            <h4 style="font-size:16px;border-bottom:1px solid var(--border2);padding-bottom:12px">&#8599; SPSC Prep Portals</h4>
+            <a class="portal" href="https://pakmcqs.com/category/english-mcqs" target="_blank" rel="noopener"><div><b>PakMcqs - English Section</b><p>Largest high-yield online mock bank for CSS/PMS</p></div><span>&#8250;</span></a>
+            <a class="portal" href="https://www.examveda.com/english/practice-mcq-question-on-english/" target="_blank" rel="noopener"><div><b>Examveda Grammar Drills</b><p>Excellent error-spotting &amp; active passive simulators</p></div><span>&#8250;</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section class="tab hidden" id="tab-roadmap">
+      <div class="card rm-head">
+        <div><h3 style="margin:0;font-size:18px;font-weight:800">SPSC 6-Week Study Path</h3><p style="font-size:12px;color:var(--muted);margin:4px 0 0">Check off weekly milestones. Your progress directly updates the sidebar mastery bar.</p></div>
+        <span class="pill" id="roadmapPct">Progress: 25% Complete</span>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <p class="backlink" style="text-align:center;padding:0 24px 8px"><a href="../">&larr; Back to English Dashboards</a></p>
+    <footer>&copy; SPSC Past Papers Visualizer &middot; Strategy DB</footer>
+  </main>
+</div>
+
+<script>
+var DEFAULT_SPSC_QUESTIONS=[
+{id:1,year:2013,subject:"English",topic:"Active & Passive Voice",question:"Why did he defraud you of your earnings? (Change to Passive Voice)",options:["(A) Why I was defrauded of my earnings?","(B) Why were you defrauded of your earnings by him?","(C) Why was he defrauded of his earnings?","(D) Why you were defrauded of your earnings?"],answer:"(B) Why were you defrauded of your earnings by him?",explanation:"In changing active interrogative starting with 'Why' to passive: 'Why' remains, the simple past 'did defraud' becomes 'were... defrauded' (since 'you' is the new plural/singular subject), and the agent 'by him' is added."},
+{id:2,year:2024,subject:"English",topic:"Direct & Indirect Speech",question:"Convert the Indirect speech into Direct speech: Samra said that the manager would go to Karachi the next day.",options:["(A) Samra said, \"Our manager will go to Karachi tomorrow.\"","(B) Samra said, \"Our manager will be going to Karachi the next day.\"","(C) Samra said, \"Our manager might be going to Karachi the next day.\"","(D) Samra said, \"Our manager might go to Karachi tomorrow.\""],answer:"(A) Samra said, \"Our manager will go to Karachi tomorrow.\"",explanation:"When converting indirect to direct speech: 'would go' reverts to 'will go', and 'the next day' reverts to 'tomorrow'."},
+{id:3,year:2024,subject:"English",topic:"Prepositions & Sentence Correction",question:"Choose the grammatically correct sentence from the following:",options:["(A) He is stronger than any man living.","(B) He is stronger than any other man living.","(C) Jenny and me joined the chess club.","(D) Jill took Justin and I to the shop."],answer:"(B) He is stronger than any other man living.",explanation:"When comparing a person to other members of the same class/group, 'any other' is required. 'He is stronger than any other man living' is grammatically accurate."},
+{id:4,year:2024,subject:"English",topic:"Direct & Indirect Speech",question:"Convert the Indirect speech into Direct speech: Imaan wondered where the sparrows had gone.",options:["(A) Imaan said, \"Oh! Where the sparrows have gone?\"","(B) Imaan said, \"Oh! Where are the sparrows?\"","(C) Imaan said, \"Oh! Where had the sparrows gone?\"","(D) Imaan said, \"Oh! Where have the sparrows gone?\""],answer:"(D) Imaan said, \"Oh! Where have the sparrows gone?\"",explanation:"The past perfect 'had gone' in indirect speech corresponds to the present perfect 'have gone' in direct speech, and 'wondered' becomes an exclamation with a question."},
+{id:5,year:2013,subject:"English",topic:"Prepositions & Sentence Correction",question:"Identify the weak spot/error in the following sentence: 'I go to the bed at sight. eyery night'",options:["(A) 'I go'","(B) 'to the bed'","(C) 'at sight'","(D) 'eyery night'"],answer:"(B) 'to the bed'",explanation:"The correct idiomatic phrase is 'go to bed' without the definite article 'the' when referring to the purpose of sleeping. Also, 'at sight' is a spelling/transcription error for 'at night'."},
+{id:6,year:2020,subject:"English",topic:"Idioms & Phrasal Verbs",question:"Complete the sentence with correct preposition/idiom: The school is within hundred yards _____ my house.",options:["(A) from","(B) of","(C) to","(D) by"],answer:"(B) of",explanation:"The correct prepositional idiom is 'within a distance of' or 'within [distance] of'. Thus, 'within hundred yards of my house' is correct."},
+{id:7,year:2019,subject:"English",topic:"Synonyms & Antonyms (Vocabulary)",question:"What is the antonym of the word 'AMICABLE' as frequently tested in SPSC papers?",options:["(A) Friendly","(B) Hostile","(C) Harmonious","(D) Polite"],answer:"(B) Hostile",explanation:"Amicable means having a spirit of friendliness. Therefore, the opposite is 'Hostile'."},
+{id:8,year:2021,subject:"English",topic:"Idioms & Phrasal Verbs",question:"Choose the correct meaning of the idiom: 'To read between the lines'",options:["(A) To read carefully line by line","(B) To find meaning that is intended but not expressed directly","(C) To read in dim light","(D) To criticize the writer's style"],answer:"(B) Find meaning that is intended but not expressed directly",explanation:"To read between the lines means to look for hidden or implied meanings rather than just surface-level statements."},
+{id:9,year:2023,subject:"English",topic:"Prepositions & Sentence Correction",question:"SPSC Spot the Error: 'The consensus of opinion amongst the committee members was unanimous.' Which part has redundancy?",options:["(A) 'The consensus'","(B) 'of opinion'","(C) 'amongst'","(D) 'was unanimous'"],answer:"(B) 'of opinion'",explanation:"'Consensus' inherently means general agreement of opinion. Thus, 'of opinion' is redundant and tautological."},
+{id:10,year:2018,subject:"English",topic:"Active & Passive Voice",question:"Choose the correct passive form: 'They have built a perfect bridge.'",options:["(A) A perfect bridge was built by them.","(B) A perfect bridge is being built by them.","(C) A perfect bridge has been built by them.","(D) A perfect bridge had been built by them."],answer:"(C) A perfect bridge has been built by them.",explanation:"Present perfect active ('have built') becomes present perfect passive ('has been built') when shifting focus to the singular object 'a perfect bridge'."}
+];
+var INITIAL_TRENDS=[
+{year:'2013',Prepositions:8,DirectIndirect:4,ActivePassive:5,Idioms:3,Vocabulary:6,Total:26},
+{year:'2018',Prepositions:6,DirectIndirect:5,ActivePassive:4,Idioms:4,Vocabulary:8,Total:27},
+{year:'2019',Prepositions:9,DirectIndirect:6,ActivePassive:3,Idioms:5,Vocabulary:7,Total:30},
+{year:'2020',Prepositions:7,DirectIndirect:4,ActivePassive:4,Idioms:6,Vocabulary:9,Total:30},
+{year:'2021',Prepositions:10,DirectIndirect:5,ActivePassive:6,Idioms:7,Vocabulary:10,Total:38},
+{year:'2023',Prepositions:12,DirectIndirect:7,ActivePassive:5,Idioms:6,Vocabulary:11,Total:41},
+{year:'2024',Prepositions:14,DirectIndirect:8,ActivePassive:6,Idioms:8,Vocabulary:12,Total:48}
+];
+var SUB_TOPIC_INFO={
+"Prepositions & Sentence Correction":{share:"35%",color:"#6366F1",rules:["Rule of Proximity: Place relative pronouns like 'who', 'which', 'that' closest to their actual antecedents to avoid dangling modifiers.","Prepositions after Adjectives: Avoid saying 'accused to', instead use 'accused of'. Similarly, use 'prevent from', 'abstain from', 'cope with' (not 'cope up with').","Subject-Verb Agreement: Phrases starting with 'along with', 'as well as', 'together with' do not change the number of the subject. E.g., 'The teacher along with her students is (not are) coming.'"],pitfalls:"Using double comparatives (e.g., 'more stronger') or redundant prepositions (e.g., 'return back', 'revert back'). SPSC regularly tests 'comprise of' which is grammatically incorrect; use 'comprise' or 'is composed of'.",hacks:"Look for absolute modifiers (like perfect, unique, supreme, round). They cannot be preceded by 'more' or 'most'."},
+"Direct & Indirect Speech":{share:"20%",color:"#8B5CF6",rules:["Backshifting Tenses: If the reporting verb is in the past tense, simple present turns to simple past, present perfect to past perfect, and 'will' changes to 'would'.","Universal Truth Exception: If the reporting statement is a universal truth, the tense does not change. E.g., He said, 'The Earth is round' becomes He said that the Earth is round.","Interrogative Conversions: In questions, 'said to' changes to 'asked'. If the question starts with a Wh-word, do not use 'that' or 'if'. E.g., 'He asked where she lived' instead of 'He asked that where she lived'."],pitfalls:"Incorrect ordering in indirect questions. SPSC examiners love setting traps where the indirect question retains question order. Wrong: 'She asked me where was I going.' Right: 'She asked me where I was going.'",hacks:"Eliminate options where 'that' and 'if/whether' are used together. They are mutually exclusive in SPSC grammar."},
+"Active & Passive Voice":{share:"15%",color:"#EC4899",rules:["Object Placement: The object of the active sentence becomes the subject of the passive sentence.","Impersonal Passive: For verbs of saying/believing, use 'It is said that...' or 'Subject is said to...'","Imperative Sentences: Use 'Let + object + be + past participle'. E.g., 'Do it' becomes 'Let it be done.'"],pitfalls:"Forgetting to change pronouns accordingly (e.g., 'I' becomes 'by me', 'we' becomes 'by us'). Confusing the passive of intransitive verbs which cannot be made passive (e.g., 'He went to school' cannot be made passive).",hacks:"Check for the auxiliary verb agreement. If the active sentence is in continuous tense, look for the word 'being' in the options. If perfect, look for 'been'."},
+"Idioms & Phrasal Verbs":{share:"15%",color:"#10B981",rules:["Literal vs Figurative meanings: SPSC selects high-yield contextual idioms reflecting historical or classic scenarios (e.g., 'burn the midnight oil', 'cold shoulder').","Separable vs Inseparable Phrasal Verbs: Some phrasal verbs require the object in between (e.g., 'fill it out'), while others cannot be split."],pitfalls:"Confusing phonetically similar phrasal verbs like 'bear with' (tolerate) with 'bear out' (confirm).",hacks:"Learn synonyms in pairs. Connect phrasal verbs with an emotional reaction to memorize faster."},
+"Synonyms & Antonyms (Vocabulary)":{share:"15%",color:"#F59E0B",rules:["Contextual Clues: SPSC synonyms often test GRE-level vocabulary (e.g., 'Ephemeral', 'Pernicious', 'Obsequious').","Prefix/Suffix Root Analysis: Understand root words like 'Bene' (good), 'Mal' (bad), 'Chrono' (time), 'Anthropo' (human) to guess definitions."],pitfalls:"Choosing a synonym when an antonym is explicitly asked. Always double check if SPSC asks for 'Opposite' or 'Same as'.",hacks:"Eliminate options that have highly identical meanings. If three options are close synonyms, the outlier is often the answer."}
+};
+var YEAR_DETAILS={
+"2013":{difficulty:"Medium",focus:"Heavy on Active/Passive interrogatives and basic Direct/Indirect speech conventions. Included correction of classic redundant expressions.",hack:"Prepare active voice transformations where the pronoun shifts cases."},
+"2018":{difficulty:"Medium-Hard",focus:"Idioms made an increased entry. Shift towards classic text-book grammar rules from Wren & Martin.",hack:"Master chapters on subject-verb agreements and noun cases."},
+"2019":{difficulty:"Hard",focus:"Vocabulary had an unexpected rise with complex, obscure words. Emphasis on parallel structures in sentence correction.",hack:"Focus on classical Latin/Greek roots in English vocabulary."},
+"2020":{difficulty:"Medium",focus:"Equal weight on prepositional phrases and spotting the error questions. Tense consistency was key.",hack:"Look out for conditional sentence patterns (e.g., 'If I had known... I would have...')."},
+"2021":{difficulty:"Hard",focus:"Transitioned to longer, analytical questions where candidates had to spot multiple errors in one paragraph.",hack:"Read carefully to spot hidden punctuation errors alongside grammatical ones."},
+"2023":{difficulty:"Medium-Hard",focus:"Strong focus on prepositions after verbs (e.g., 'abide by', 'adhere to'). Idioms and phrases taken directly from historical events.",hack:"Keep a daily log of prepositional collocations."},
+"2024":{difficulty:"Hard",focus:"Complex direct/indirect conversions, with heavy distractors. Detailed vocabulary and spelling rules tested.",hack:"Pay extreme attention to minor spelling variations and direct-indirect double backshifts."}
+};
+var ROADMAP_WEEKS=[
+{num:1,title:"Week 1: Sentence Core & Prepositional Placement",dur:"Estimated duration: 7 Hours",weeks:[1]},
+{num:2,title:"Week 2: Direct & Indirect backshifting",dur:"Estimated duration: 6 Hours",weeks:[2]},
+{num:3,title:"Week 3 & 4: Voice Transitivity & SPSC Idioms",dur:"Estimated duration: 12 Hours",weeks:[3,4]},
+{num:4,title:"Week 5 & 6: Root Vocabulary & Cumulative Simulated Mocks",dur:"Estimated duration: 14 Hours",weeks:[5,6]}
+];
+
+var customQuestions=[];
+var roadmapTasks=[
+{id:1,week:1,title:"Prepositions Masterclass",desc:"Read Wren & Martin Chapter 39. Learn fixed preposition lists.",completed:true},
+{id:2,week:1,title:"Identify Preposition Errors",desc:"Practice 50 SPSC past questions on prepositional slips.",completed:true},
+{id:3,week:2,title:"Direct-Indirect Tense Rules",desc:"Memorize shift tables (will -> would, present perfect -> past perfect).",completed:false},
+{id:4,week:2,title:"Interrogative Conversions",desc:"Practice converting Wh-questions into reported speech.",completed:false},
+{id:5,week:3,title:"Active-Passive Transitivity",desc:"Recognize transitive vs intransitive verbs. Learn Let-construction.",completed:false},
+{id:6,week:4,title:"High-Yield SPSC Idioms",desc:"Study 200 common idioms from past papers.",completed:false},
+{id:7,week:5,title:"Synonyms & Roots",desc:"Master Greek/Latin prefixes & suffixes to decode GRE words.",completed:false},
+{id:8,week:6,title:"Spot the Error Drills",desc:"Take cumulative mock tests of 100 questions in simulated times.",completed:false}
+];
+var selectedTopicFilter="All Topics", selectedYearFilter="All Years";
+var practiceIndex=0, selectedAnswerOption=null, practiceScore={correct:0,attempted:0}, practiceFeedback=null;
+var selectedDeepDiveTopic="Prepositions & Sentence Correction", selectedDeepDiveYear="2024";
+var uploadedFileName="", uploadedQuestionsCount=0;
+var yearChart=null, topicChart=null;
+
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function allQuestions(){return DEFAULT_SPSC_QUESTIONS.concat(customQuestions);}
+function filteredPractice(){
+  return allQuestions().filter(function(q){
+    return (selectedTopicFilter==="All Topics"||q.topic===selectedTopicFilter) &&
+           (selectedYearFilter==="All Years"||String(q.year)===selectedYearFilter);
+  });
+}
+function overallProgress(){
+  var done=roadmapTasks.filter(function(t){return t.completed;}).length;
+  return Math.round(done/roadmapTasks.length*100);
+}
+function updateMastery(){
+  var p=overallProgress(), done=roadmapTasks.filter(function(t){return t.completed;}).length;
+  document.getElementById("masteryPct").textContent=p+"%";
+  document.getElementById("masteryBar").style.width=p+"%";
+  document.getElementById("masteryText").textContent=done+" of "+roadmapTasks.length+" study strategies completed";
+  document.getElementById("statMastery").textContent=p+"%";
+  document.getElementById("roadmapPct").textContent="Progress: "+p+"% Complete";
+}
+function updateStats(){
+  var total=allQuestions().length;
+  document.getElementById("statTotal").textContent=total;
+  document.getElementById("donutTotal").textContent=total;
+  document.getElementById("practiceCount").textContent=filteredPractice().length+" Qs";
+  var acc=practiceScore.attempted>0?Math.round(practiceScore.correct/practiceScore.attempted*100)+"%":"0%";
+  document.getElementById("statAccuracy").textContent=acc;
+  document.getElementById("statAccuracySub").textContent=practiceScore.correct+" correct of "+practiceScore.attempted;
+  if(uploadedFileName) document.getElementById("dbStatus").textContent=uploadedQuestionsCount+" Parsed";
+}
+
+/* Tabs */
+var TITLES={overview:"SPSC English Analytics Overview",deepdive:"Year & Sub-Topic Deep Dive Analysis",practice:"Interactive Practice Hub",roadmap:"6-Week Smart Roadmap"};
+document.querySelectorAll(".nav-btn").forEach(function(btn){
+  btn.addEventListener("click",function(){showTab(btn.getAttribute("data-tab"));});
+});
+function showTab(tab){
+  document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.toggle("active",b.getAttribute("data-tab")===tab);});
+  ["overview","deepdive","practice","roadmap"].forEach(function(t){
+    document.getElementById("tab-"+t).classList.toggle("hidden",t!==tab);
+  });
+  document.getElementById("tabTitle").textContent=TITLES[tab];
+  if(tab==="overview") renderCharts();
+}
+document.getElementById("startPracticeBtn").addEventListener("click",function(){showTab("practice");});
+
+/* Charts */
+function topicDistribution(){
+  var counts={}; Object.keys(SUB_TOPIC_INFO).forEach(function(t){counts[t]=0;});
+  allQuestions().forEach(function(q){
+    if(counts[q.topic]!==undefined) counts[q.topic]+=1; else counts["Prepositions & Sentence Correction"]+=1;
+  });
+  return Object.keys(counts).map(function(k){return {name:k,value:counts[k],color:SUB_TOPIC_INFO[k].color};});
+}
+function yearDistribution(){
+  var counts={'2013':0,'2018':0,'2019':0,'2020':0,'2021':0,'2023':0,'2024':0};
+  allQuestions().forEach(function(q){var y=String(q.year); if(counts[y]!==undefined) counts[y]+=1;});
+  return Object.keys(counts).map(function(year){
+    var trend=INITIAL_TRENDS.find(function(t){return t.year===year;});
+    return {year:year,Questions:counts[year]+(trend?trend.Total:10)};
+  });
+}
+function renderCharts(){
+  if(!window.Chart) return;
+  var yd=yearDistribution(), td=topicDistribution();
+  var ctx=document.getElementById("yearChart").getContext("2d");
+  var grad=ctx.createLinearGradient(0,0,0,256); grad.addColorStop(0,"rgba(99,102,241,.25)"); grad.addColorStop(1,"rgba(99,102,241,0)");
+  if(yearChart) yearChart.destroy();
+  yearChart=new Chart(ctx,{type:"line",data:{labels:yd.map(function(d){return d.year;}),datasets:[{label:"Questions",data:yd.map(function(d){return d.Questions;}),borderColor:"#6366F1",backgroundColor:grad,fill:true,borderWidth:3,tension:.4,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true}}}});
+  if(topicChart) topicChart.destroy();
+  topicChart=new Chart(document.getElementById("topicChart"),{type:"doughnut",data:{labels:td.map(function(d){return d.name;}),datasets:[{data:td.map(function(d){return d.value;}),backgroundColor:td.map(function(d){return d.color;}),borderWidth:2,borderColor:"#fff"}]},options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{display:false}}}});
+  document.getElementById("topicLegend").innerHTML=td.map(function(t){
+    return '<div class="li"><span class="n"><i style="background:'+t.color+'"></i>'+esc(t.name)+'</span><span>'+t.value+' MCQs</span></div>';
+  }).join("");
+}
+
+/* Deep Dive */
+function renderDeepDive(){
+  document.getElementById("topicSelectors").innerHTML=Object.keys(SUB_TOPIC_INFO).map(function(topic){
+    var meta=SUB_TOPIC_INFO[topic], active=topic===selectedDeepDiveTopic;
+    return '<button class="sel-btn'+(active?" active":"")+'" data-topic="'+esc(topic)+'"><span class="r"><span>'+esc(topic)+'</span><span class="share">'+meta.share+' Share</span></span></button>';
+  }).join("");
+  document.querySelectorAll("#topicSelectors .sel-btn").forEach(function(b){
+    b.addEventListener("click",function(){selectedDeepDiveTopic=b.getAttribute("data-topic");renderDeepDive();});
+  });
+  document.getElementById("yearSelectors").innerHTML=Object.keys(YEAR_DETAILS).map(function(year){
+    return '<button class="year-btn'+(year===selectedDeepDiveYear?" active":"")+'" data-year="'+year+'">'+year+'</button>';
+  }).join("");
+  document.querySelectorAll("#yearSelectors .year-btn").forEach(function(b){
+    b.addEventListener("click",function(){selectedDeepDiveYear=b.getAttribute("data-year");renderDeepDive();});
+  });
+  var meta=SUB_TOPIC_INFO[selectedDeepDiveTopic], yd=YEAR_DETAILS[selectedDeepDiveYear];
+  document.getElementById("ddTopicName").textContent=selectedDeepDiveTopic;
+  document.getElementById("ddTopicShare").textContent=meta.share+" Exam Weightage";
+  document.getElementById("ddRules").innerHTML=meta.rules.map(function(r,i){
+    return '<div class="rule"><span class="n">'+(i+1)+'</span><p>'+esc(r)+'</p></div>';
+  }).join("");
+  document.getElementById("ddPitfalls").textContent=meta.pitfalls;
+  document.getElementById("ddHacks").textContent=meta.hacks;
+  document.getElementById("ddYearName").textContent="SPSC English Paper "+selectedDeepDiveYear;
+  var diffEl=document.getElementById("ddYearDiff");
+  diffEl.textContent=yd.difficulty+" Difficulty";
+  diffEl.className="diff "+(yd.difficulty==="Hard"?"hard":"med");
+  document.getElementById("ddYearFocus").textContent=yd.focus;
+  document.getElementById("ddYearHack").textContent=yd.hack;
+}
+
+/* Practice */
+function isCorrectOption(option,answer){
+  var cleanOption=option.trim().toLowerCase();
+  var cleanAnswer=answer.replace(/"/g,"").trim().toLowerCase();
+  return cleanOption.indexOf(cleanAnswer.substring(0,10))>-1 ||
+    (cleanAnswer.indexOf("(a)")===0 && cleanOption.indexOf("(a)")===0) ||
+    (cleanAnswer.indexOf("(b)")===0 && cleanOption.indexOf("(b)")===0) ||
+    (cleanAnswer.indexOf("(c)")===0 && cleanOption.indexOf("(c)")===0) ||
+    (cleanAnswer.indexOf("(d)")===0 && cleanOption.indexOf("(d)")===0);
+}
+function renderPractice(){
+  var list=filteredPractice();
+  var area=document.getElementById("practiceArea");
+  document.getElementById("practiceCount").textContent=list.length+" Qs";
+  if(!list.length){
+    area.innerHTML='<div class="card empty"><div style="font-size:28px">&#128269;</div><h3>No matching MCQs in current selection</h3><p>Try changing your Year or Topic filter from the dropdown controls above.</p></div>';
+    return;
+  }
+  if(practiceIndex>=list.length) practiceIndex=list.length-1;
+  var q=list[practiceIndex];
+  var opts=q.options.map(function(option){
+    var correct=isCorrectOption(option,q.answer), selected=selectedAnswerOption===option;
+    var cls="opt";
+    if(practiceFeedback){ if(correct) cls+=" correct"; else if(selected) cls+=" wrong"; }
+    else if(selected) cls+=" sel";
+    var icon=practiceFeedback?(correct?"&#10003;":(selected?"&#10005;":"")):"";
+    return '<button class="opt '+cls+'" data-opt="'+esc(option)+'" '+(practiceFeedback?"disabled":"")+'><span>'+esc(option)+'</span><span>'+icon+'</span></button>';
+  }).join("");
+  area.innerHTML='<div class="card qcard">'+
+    '<div class="qmeta"><div><span class="qtag">SPSC '+q.year+'</span> <span class="qtag p">'+esc(q.topic)+'</span></div>'+
+    '<span class="qcount">Question '+(practiceIndex+1)+' of '+list.length+'</span></div>'+
+    '<h3 class="qtext">'+esc(q.question)+'</h3><div>'+opts+'</div>'+
+    (practiceFeedback?'<div class="explain"><b>Diagnostic Analysis</b><p>'+esc(q.explanation||"")+'</p></div>':"")+
+    '<div class="qfoot"><button class="prev" id="prevQ" '+(practiceIndex===0?"disabled":"")+'>Previous MCQ</button>'+
+    '<span class="score">Score: '+practiceScore.correct+'/'+practiceScore.attempted+' Corrects</span>'+
+    '<button class="next" id="nextQ" '+(practiceIndex===list.length-1?"disabled":"")+'>Next MCQ</button></div></div>';
+  area.querySelectorAll(".opt").forEach(function(b){
+    b.addEventListener("click",function(){
+      if(practiceFeedback) return;
+      selectedAnswerOption=b.getAttribute("data-opt");
+      practiceFeedback=isCorrectOption(selectedAnswerOption,q.answer)?"correct":"incorrect";
+      if(practiceFeedback==="correct") practiceScore.correct+=1;
+      practiceScore.attempted+=1;
+      updateStats(); renderPractice();
+    });
+  });
+  document.getElementById("prevQ").addEventListener("click",function(){
+    if(practiceIndex>0){practiceIndex-=1;selectedAnswerOption=null;practiceFeedback=null;renderPractice();}
+  });
+  document.getElementById("nextQ").addEventListener("click",function(){
+    if(practiceIndex<list.length-1){practiceIndex+=1;selectedAnswerOption=null;practiceFeedback=null;renderPractice();}
+  });
+}
+document.getElementById("practiceTopic").addEventListener("change",function(e){selectedTopicFilter=e.target.value;practiceIndex=0;selectedAnswerOption=null;practiceFeedback=null;renderPractice();});
+document.getElementById("practiceYear").addEventListener("change",function(e){selectedYearFilter=e.target.value;practiceIndex=0;selectedAnswerOption=null;practiceFeedback=null;renderPractice();});
+document.getElementById("resetScoreBtn").addEventListener("click",function(){practiceScore={correct:0,attempted:0};practiceIndex=0;selectedAnswerOption=null;practiceFeedback=null;updateStats();renderPractice();});
+
+/* Roadmap */
+function renderRoadmap(){
+  document.getElementById("timeline").innerHTML=ROADMAP_WEEKS.map(function(w){
+    var tasks=roadmapTasks.filter(function(t){return w.weeks.indexOf(t.week)>-1;});
+    return '<div class="week"><span class="num">'+w.num+'</span><h4>'+esc(w.title)+'</h4><p class="dur">'+esc(w.dur)+'</p><div class="tasks">'+
+      tasks.map(function(t){
+        return '<div class="task'+(t.completed?" done":"")+'" data-id="'+t.id+'"><div class="box">'+(t.completed?"&#10003;":"")+'</div><div><b>'+esc(t.title)+'</b><p>'+esc(t.desc)+'</p></div></div>';
+      }).join("")+'</div></div>';
+  }).join("");
+  document.querySelectorAll(".task").forEach(function(el){
+    el.addEventListener("click",function(){
+      var id=+el.getAttribute("data-id");
+      roadmapTasks.forEach(function(t){if(t.id===id)t.completed=!t.completed;});
+      updateMastery(); renderRoadmap();
+    });
+  });
+}
+
+/* CSV import — same parsing/classification as spsc_english_prep_dashboard.tsx */
+function parseCSVRows(text){
+  var rows=[],row=[],field="",inside=false;
+  for(var i=0;i<text.length;i++){
+    var ch=text[i], nx=text[i+1];
+    if(ch==='"'){ if(inside&&nx==='"'){field+='"';i++;} else inside=!inside; }
+    else if(ch===","&&!inside){row.push(field);field="";}
+    else if((ch==="\r"||ch==="\n")&&!inside){ if(ch==="\r"&&nx==="\n")i++; row.push(field);rows.push(row);row=[];field=""; }
+    else field+=ch;
+  }
+  if(row.length||field){row.push(field);rows.push(row);}
+  return rows;
+}
+document.getElementById("csvInput").addEventListener("change",function(e){
+  var file=e.target.files[0]; if(!file) return;
+  uploadedFileName=file.name;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var rows=parseCSVRows(ev.target.result), parsed=[];
+    for(var i=0;i<rows.length;i++){
+      var row=rows[i]; if(!row||row.length<3) continue;
+      var year=parseInt((row[0]||"").trim());
+      if(isNaN(year)||year<1900||year>2100) continue;
+      var questionText=row[2]||"", rawAns=(row[3]||"").trim(), subject=(row[4]||"").trim()||"English";
+      var idxA=questionText.indexOf("(A)"), idxB=questionText.indexOf("(B)"), idxC=questionText.indexOf("(C)"), idxD=questionText.indexOf("(D)");
+      var options;
+      if(idxA!==-1&&idxB!==-1){
+        var body=questionText.substring(0,idxA).trim();
+        var valA=questionText.substring(idxA+3,idxB).trim();
+        var valB=idxC!==-1?questionText.substring(idxB+3,idxC).trim():questionText.substring(idxB+3).trim();
+        var valC=idxC!==-1?(idxD!==-1?questionText.substring(idxC+3,idxD).trim():questionText.substring(idxC+3).trim()):"";
+        var valD=idxD!==-1?questionText.substring(idxD+3).trim():"";
+        options=["(A) "+valA.replace(/[\n\r]+/g," ").trim(),"(B) "+valB.replace(/[\n\r]+/g," ").trim(),valC?"(C) "+valC.replace(/[\n\r]+/g," ").trim():"(C) None of these",valD?"(D) "+valD.replace(/[\n\r]+/g," ").trim():"(D) All of these"];
+        questionText=body.replace(/^\d+\s+/,"").replace(/[\n\r]+/g," ").trim();
+      }else{
+        questionText=questionText.replace(/^\d+\s+/,"").replace(/[\n\r]+/g," ").trim();
+        options=["(A) Option A","(B) Option B","(C) Option C","(D) Option D"];
+      }
+      var topic="Prepositions & Sentence Correction", lower=questionText.toLowerCase();
+      if(lower.indexOf("speech")>-1||lower.indexOf("said")>-1||lower.indexOf("told")>-1||lower.indexOf("indirect")>-1||lower.indexOf("direct")>-1) topic="Direct & Indirect Speech";
+      else if(lower.indexOf("voice")>-1||lower.indexOf("passive")>-1||lower.indexOf("active")>-1||lower.indexOf("defraud")>-1||lower.indexOf("built")>-1) topic="Active & Passive Voice";
+      else if(lower.indexOf("idiom")>-1||lower.indexOf("phrase")>-1||lower.indexOf("expression")>-1||lower.indexOf("read between")>-1) topic="Idioms & Phrasal Verbs";
+      else if(lower.indexOf("synonym")>-1||lower.indexOf("antonym")>-1||lower.indexOf("opposite")>-1||lower.indexOf("meaning")>-1||lower.indexOf("vocabulary")>-1||lower.indexOf("spelling")>-1||lower.indexOf("error")>-1) topic="Synonyms & Antonyms (Vocabulary)";
+      parsed.push({id:200+i,year:year,subject:subject,topic:topic,question:questionText||"Sample SPSC Question Entry",options:options,answer:rawAns||options[0],explanation:"Authentic SPSC Past Paper Question from "+year+". Study sentence correction, passive structure constraints, and advanced tense conversions."});
+    }
+    if(parsed.length){
+      customQuestions=parsed; uploadedQuestionsCount=parsed.length;
+      practiceIndex=0; selectedAnswerOption=null; practiceFeedback=null;
+      updateStats(); renderCharts(); renderPractice(); showTab("overview");
+    }
+  };
+  reader.readAsText(file);
+});
+
+/* Theme: light / dark toggle, top right. Saved in localStorage; defaults to system preference. */
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme",theme);
+  var btn=document.getElementById("themeBtn");
+  if(btn) btn.textContent=theme==="dark"?"\u2600\uFE0F Light":"\u263E Dark";
+  try{localStorage.setItem("db3-theme",theme);}catch(e){}
+}
+(function initTheme(){
+  var saved=null; try{saved=localStorage.getItem("db3-theme");}catch(e){}
+  var theme=saved||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  applyTheme(theme);
+})();
+document.getElementById("themeBtn").addEventListener("click",function(){
+  var cur=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";
+  applyTheme(cur==="dark"?"light":"dark");
+});
+
+/* Init */
+(function init(){
+  var ts=document.getElementById("practiceTopic");
+  Object.keys(SUB_TOPIC_INFO).forEach(function(t){var o=document.createElement("option");o.value=t;o.textContent=t;ts.appendChild(o);});
+  var ys=document.getElementById("practiceYear");
+  Object.keys(YEAR_DETAILS).forEach(function(y){var o=document.createElement("option");o.value=y;o.textContent=y;ys.appendChild(o);});
+  updateMastery(); updateStats(); renderDeepDive(); renderPractice(); renderRoadmap(); renderCharts();
+})();
+</script>
+</body>
+</html>
