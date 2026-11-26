@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>English MCQs Dashboard — Exam Data Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--text2:#334155;--muted:#64748b;--blue:#2563eb;--blue-soft:#eff6ff;--emerald:#059669;--emerald-soft:#ecfdf5;--amber:#d97706;--amber-soft:#fffbeb;--red:#dc2626;--red-soft:#fef2f2;--shadow:0 1px 3px rgba(15,23,42,.06)}
+@media (prefers-color-scheme: dark){:root{--bg:#0b1220;--surface:#111827;--border:#1f2937;--text:#f8fafc;--text2:#e2e8f0;--muted:#94a3b8;--blue:#60a5fa;--blue-soft:#1e3a5f;--emerald:#34d399;--emerald-soft:#064e3b;--amber:#fbbf24;--amber-soft:#451a03;--red:#f87171;--red-soft:#450a0a}}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit}
+button,select,input[type=text]{min-height:38px}
+.hidden{display:none!important}
+/* upload screen */
+.center{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.upload-card{max-width:28rem;width:100%;background:var(--surface);padding:32px;border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--border);text-align:center}
+.upload-card .logo{width:64px;height:64px;background:#dbeafe;color:var(--blue);border-radius:999px;display:grid;place-items:center;margin:0 auto 24px;font-size:28px}
+.upload-card h1{margin:0 0 8px;font-size:24px;font-weight:800}
+.upload-card p{color:var(--muted);margin:0 0 32px;font-size:15px}
+.upload-card code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:14px;color:var(--text2)}
+.drop{position:relative;border:2px dashed #cbd5e1;border-radius:12px;padding:32px;cursor:pointer}
+.drop:hover{background:var(--bg);border-color:var(--blue)}
+.drop input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.drop .up{font-size:28px;margin-bottom:12px}
+.drop p{margin:0;font-size:14px;font-weight:600;color:var(--text2)}
+.loading{margin-top:16px;color:var(--blue);font-size:14px;font-weight:600}
+.error{margin-top:16px;padding:12px;background:var(--red-soft);color:var(--red);font-size:14px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.backlink{margin-top:16px;font-size:13px;color:var(--muted)}
+.backlink a{color:var(--blue)}
+/* dashboard */
+.page{max-width:80rem;margin:0 auto;padding:16px}
+@media (min-width:768px){.page{padding:32px}}
+.card{background:var(--surface);padding:24px;border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
+header.card{display:flex;flex-direction:column;gap:16px}
+@media (min-width:768px){header.card{flex-direction:row;align-items:center;justify-content:space-between}}
+header h1{margin:0;font-size:22px;font-weight:800;display:flex;align-items:center;gap:12px}
+header h1 span{color:var(--blue)}
+header p{color:var(--muted);font-size:14px;margin:4px 0 0}
+.btn{padding:8px 16px;font-size:14px;font-weight:600;color:var(--text2);background:#f1f5f9;border:0;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;align-self:flex-start}
+@media (prefers-color-scheme: dark){.btn{background:#1f2937;color:#e2e8f0}}
+.btn:hover{background:#e2e8f0}
+.stats{display:grid;grid-template-columns:1fr;gap:24px;margin-top:24px}
+@media (min-width:768px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{display:flex;align-items:center;gap:16px}
+.stat .ic{width:48px;height:48px;border-radius:999px;display:grid;place-items:center;flex-shrink:0;font-size:22px}
+.stat .ic.blue{background:var(--blue-soft);color:var(--blue)}
+.stat .ic.green{background:var(--emerald-soft);color:var(--emerald)}
+.stat .ic.amber{background:var(--amber-soft);color:var(--amber)}
+.stat p{color:var(--muted);font-size:14px;font-weight:600;margin:0}
+.stat h3{font-size:24px;font-weight:800;margin:0}
+.charts{display:grid;grid-template-columns:1fr;gap:24px;margin-top:24px}
+@media (min-width:1024px){.charts{grid-template-columns:1fr 1fr}}
+.charts h3{font-size:18px;font-weight:800;margin:0 0 24px;display:flex;align-items:center;gap:8px}
+.charts h3 span{color:var(--muted);font-weight:400}
+.chartbox{height:288px}
+.table-card{margin-top:24px;overflow:hidden;padding:0}
+.table-head{padding:24px;border-bottom:1px solid var(--border);background:var(--bg)}
+.table-head .row{display:flex;flex-direction:column;gap:16px;margin-bottom:16px}
+@media (min-width:768px){.table-head .row{flex-direction:row;align-items:center;justify-content:space-between}}
+.table-head h3{font-size:18px;font-weight:800;margin:0;display:flex;align-items:center;gap:8px}
+.count{font-size:14px;font-weight:600;padding:4px 12px;background:var(--surface);border:1px solid var(--border);border-radius:999px;box-shadow:var(--shadow)}
+.filters{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:768px){.filters{grid-template-columns:repeat(3,1fr)}}
+.field{position:relative}
+.field input,.field select{width:100%;padding:8px 16px 8px 36px;background:var(--surface);border:1px solid #cbd5e1;border-radius:12px;font-size:14px;color:var(--text)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.field .fi{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:16px;pointer-events:none}
+.tablewrap{overflow-x:auto}
+table{width:100%;text-align:left;font-size:14px;border-collapse:collapse;color:var(--text2)}
+thead{color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--border)}
+th{padding:16px 24px}
+td{padding:16px 24px;vertical-align:top;border-bottom:1px solid #f1f5f9}
+tbody tr:hover{background:var(--bg)}
+td.q{min-width:300px;white-space:pre-wrap;word-break:break-word;color:var(--text2)}
+td.a{font-weight:600;color:var(--emerald);word-break:break-word}
+.tag{display:inline-flex;padding:4px 8px;background:#f1f5f9;color:var(--text2);font-size:12px;border-radius:4px;font-weight:600;border:1px solid var(--border)}
+.empty{padding:48px 24px;text-align:center;color:var(--muted)}
+.pager{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface)}
+.pager span{font-size:14px;color:var(--muted)}
+.pager span b{color:var(--text)}
+.pager .btns{display:flex;gap:8px}
+.pager button{padding:4px 12px;font-size:14px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer}
+.pager button:disabled{opacity:.5;cursor:not-allowed}
+.pager button:not(:disabled):hover{background:var(--bg)}
+</style>
+</head>
+<body>
+
+<!-- Upload screen -->
+<div id="uploadScreen" class="center">
+  <div class="upload-card">
+    <div class="logo">&#128202;</div>
+    <h1>Exam Data Dashboard</h1>
+    <p>Upload your <code>ENG-all.csv</code> file to generate interactive visualizations and explore the data.</p>
+    <div class="drop" id="dropZone">
+      <input type="file" accept=".csv" id="fileInput" aria-label="Upload CSV file">
+      <div class="up">&#11014;</div>
+      <p>Click or drag CSV file to upload</p>
+    </div>
+    <p id="loadingMsg" class="loading hidden">Parsing dataset...</p>
+    <div id="errorMsg" class="error hidden"></div>
+  </div>
+  <p class="backlink"><a href="../">← Back to English Dashboards</a></p>
+</div>
+
+<!-- Dashboard screen -->
+<div id="dashScreen" class="page hidden">
+  <header class="card">
+    <div>
+      <h1><span>&#128451;</span> English MCQs Dashboard</h1>
+      <p id="recordCount"></p>
+    </div>
+    <button class="btn" id="resetBtn">&#11014; Upload New File</button>
+  </header>
+
+  <div class="stats">
+    <div class="card stat"><div class="ic blue">&#128196;</div><div><p>Total Questions</p><h3 id="statTotal">0</h3></div></div>
+    <div class="card stat"><div class="ic green">&#128214;</div><div><p>Topics Covered</p><h3 id="statTopics">0</h3></div></div>
+    <div class="card stat"><div class="ic amber">&#128197;</div><div><p>Exam Years</p><h3 id="statYears">0</h3></div></div>
+  </div>
+
+  <div class="charts">
+    <div class="card">
+      <h3><span>&#128202;</span> Distribution by Year</h3>
+      <div class="chartbox"><canvas id="yearChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3><span>&#129433;</span> Top Topics Breakdown</h3>
+      <div class="chartbox"><canvas id="topicChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-head">
+      <div class="row">
+        <h3><span>&#128196;</span> Question Repository</h3>
+        <div class="count" id="showCount"></div>
+      </div>
+      <div class="filters">
+        <div class="field"><span class="fi">&#128269;</span><input type="text" id="searchInput" placeholder="Search questions or answers..."></div>
+        <div class="field"><span class="fi">&#9881;</span><select id="topicSelect"><option value="All">All Topics</option></select></div>
+        <div class="field"><span class="fi">&#128197;</span><select id="yearSelect"><option value="All">All Years</option></select></div>
+      </div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Year</th><th>Topic</th><th style="width:50%">Question</th><th style="width:25%">Answer</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager">
+      <span id="pageLabel"></span>
+      <div class="btns">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+  <p class="backlink" style="text-align:center;margin-top:24px"><a href="../">← Back to English Dashboards</a></p>
+</div>
+
+<script>
+/* Robust CSV parser — same logic as exam_data_dashboard__1.tsx: handles quotes and newlines inside fields */
+function parseCSV(csvText){
+  var lines=[], currentLine=[], currentVal='', insideQuotes=false;
+  for(var i=0;i<csvText.length;i++){
+    var ch=csvText[i], next=csvText[i+1];
+    if(ch==='"' && insideQuotes && next==='"'){ currentVal+='"'; i++; }
+    else if(ch==='"'){ insideQuotes=!insideQuotes; }
+    else if(ch===',' && !insideQuotes){ currentLine.push(currentVal); currentVal=''; }
+    else if((ch==='\n'||ch==='\r') && !insideQuotes){
+      if(ch==='\r' && next==='\n') i++;
+      currentLine.push(currentVal); lines.push(currentLine); currentLine=[]; currentVal='';
+    } else { currentVal+=ch; }
+  }
+  if(currentVal || currentLine.length>0){ currentLine.push(currentVal); lines.push(currentLine); }
+  if(lines.length<2) return [];
+  var headers=lines[0].map(function(h){ return h.trim().replace(/^"|"$/g,''); });
+  var result=[];
+  for(var i=1;i<lines.length;i++){
+    if(lines[i].length===1 && lines[i][0]==='') continue;
+    var obj={};
+    for(var j=0;j<headers.length;j++){ obj[headers[j]||('Col'+j)] = lines[i][j] ? lines[i][j].trim() : ''; }
+    result.push(obj);
+  }
+  return result;
+}
+
+var COLORS=['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+var data=[], searchTerm='', selectedTopic='All', selectedYear='All', page=1, rowsPerPage=15;
+var yearChart=null, topicChart=null;
+
+var fileInput=document.getElementById('fileInput');
+var dropZone=document.getElementById('dropZone');
+var loadingMsg=document.getElementById('loadingMsg');
+var errorMsg=document.getElementById('errorMsg');
+
+function showError(msg){ errorMsg.textContent='⚠ '+msg; errorMsg.classList.remove('hidden'); }
+function handleFile(file){
+  if(!file) return;
+  loadingMsg.classList.remove('hidden'); errorMsg.classList.add('hidden');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var parsed=parseCSV(e.target.result);
+      if(!parsed.length) throw new Error('No data found in the CSV file.');
+      data=parsed; page=1; searchTerm=''; selectedTopic='All'; selectedYear='All';
+      document.getElementById('searchInput').value='';
+      renderDashboard();
+    }catch(err){ showError('Failed to parse CSV file. Please ensure it is correctly formatted.'); }
+    finally{ loadingMsg.classList.add('hidden'); }
+  };
+  reader.onerror=function(){ showError('Error reading file.'); loadingMsg.classList.add('hidden'); };
+  reader.readAsText(file);
+}
+fileInput.addEventListener('change', function(e){ handleFile(e.target.files[0]); });
+['dragover','dragenter'].forEach(function(ev){ dropZone.addEventListener(ev, function(e){ e.preventDefault(); }); });
+dropZone.addEventListener('drop', function(e){ e.preventDefault(); if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+document.getElementById('resetBtn').addEventListener('click', function(){
+  data=[]; if(yearChart){yearChart.destroy();yearChart=null;} if(topicChart){topicChart.destroy();topicChart=null;}
+  fileInput.value='';
+  document.getElementById('dashScreen').classList.add('hidden');
+  document.getElementById('uploadScreen').classList.remove('hidden');
+});
+
+function filteredData(){
+  var q=searchTerm.toLowerCase();
+  return data.filter(function(row){
+    var matchesSearch=!q || (row['Name']||'').toLowerCase().indexOf(q)>-1 || (row['ANS']||'').toLowerCase().indexOf(q)>-1;
+    var matchesTopic=selectedTopic==='All' || row['Topic']===selectedTopic;
+    var matchesYear=selectedYear==='All' || row['Year']===selectedYear;
+    return matchesSearch && matchesTopic && matchesYear;
+  });
+}
+
+function renderDashboard(){
+  var topics={}, years={}, yearCount={}, topicCount={};
+  data.forEach(function(row){
+    var t=row['Topic']||'Unknown', y=row['Year']||'Unknown';
+    topics[t]=1; years[y]=1;
+    yearCount[y]=(yearCount[y]||0)+1; topicCount[t]=(topicCount[t]||0)+1;
+  });
+  var uniqueTopics=Object.keys(topics).sort();
+  var uniqueYears=Object.keys(years).sort();
+  document.getElementById('recordCount').textContent='Analyzing '+data.length.toLocaleString()+' records from the dataset.';
+  document.getElementById('statTotal').textContent=data.length.toLocaleString();
+  document.getElementById('statTopics').textContent=uniqueTopics.length;
+  document.getElementById('statYears').textContent=uniqueYears.length;
+  var ts=document.getElementById('topicSelect');
+  ts.innerHTML='<option value="All">All Topics</option>'+uniqueTopics.map(function(t){return '<option value="'+t.replace(/"/g,'&quot;')+'">'+t+'</option>';}).join('');
+  var ys=document.getElementById('yearSelect');
+  ys.innerHTML='<option value="All">All Years</option>'+uniqueYears.map(function(y){return '<option value="'+y.replace(/"/g,'&quot;')+'">'+y+'</option>';}).join('');
+  document.getElementById('uploadScreen').classList.add('hidden');
+  document.getElementById('dashScreen').classList.remove('hidden');
+  renderCharts(yearCount, topicCount);
+  renderTable();
+}
+
+function renderCharts(yearCount, topicCount){
+  if(!window.Chart) return;
+  var yStats=Object.keys(yearCount).map(function(y){return {name:y,count:yearCount[y]};}).sort(function(a,b){return a.name.localeCompare(b.name);});
+  var tStats=Object.keys(topicCount).map(function(t){return {name:t,count:topicCount[t]};}).sort(function(a,b){return b.count-a.count;});
+  var top=tStats.slice(0,7);
+  var other=tStats.slice(7).reduce(function(a,c){return a+c.count;},0);
+  if(other>0) top.push({name:'Other',count:other});
+  if(yearChart) yearChart.destroy();
+  yearChart=new Chart(document.getElementById('yearChart'),{type:'bar',
+    data:{labels:yStats.map(function(d){return d.name;}),datasets:[{data:yStats.map(function(d){return d.count;}),backgroundColor:'#3b82f6',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true}}}});
+  if(topicChart) topicChart.destroy();
+  topicChart=new Chart(document.getElementById('topicChart'),{type:'doughnut',
+    data:{labels:top.map(function(d){return d.name;}),datasets:[{data:top.map(function(d){return d.count;}),backgroundColor:top.map(function(_,i){return COLORS[i%COLORS.length];}),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:12},color:'#475569'}}}}});
+}
+
+function renderTable(){
+  var filtered=filteredData();
+  var totalPages=Math.ceil(filtered.length/rowsPerPage)||1;
+  if(page>totalPages) page=totalPages;
+  var start=(page-1)*rowsPerPage;
+  var rows=filtered.slice(start,start+rowsPerPage);
+  var tbody=document.getElementById('tbody');
+  document.getElementById('showCount').textContent='Showing '+filtered.length+' records';
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="4" class="empty">No matching records found.</td></tr>';
+  }else{
+    tbody.innerHTML=rows.map(function(row){
+      return '<tr><td style="font-weight:600;color:var(--text)">'+(row['Year']||'-')+'</td>'+
+        '<td><span class="tag">'+(row['Topic']||'-')+'</span></td>'+
+        '<td class="q">'+escapeHtml(row['Name']||'-')+'</td>'+
+        '<td class="a">'+escapeHtml(row['ANS']||'-')+'</td></tr>';
+    }).join('');
+  }
+  document.getElementById('pageLabel').innerHTML='Page <b>'+page+'</b> of <b>'+totalPages+'</b>';
+  document.getElementById('pager').style.display=totalPages>1?'flex':'none';
+  document.getElementById('prevBtn').disabled=page===1;
+  document.getElementById('nextBtn').disabled=page===totalPages;
+}
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+document.getElementById('searchInput').addEventListener('input', function(e){ searchTerm=e.target.value; page=1; renderTable(); });
+document.getElementById('topicSelect').addEventListener('change', function(e){ selectedTopic=e.target.value; page=1; renderTable(); });
+document.getElementById('yearSelect').addEventListener('change', function(e){ selectedYear=e.target.value; page=1; renderTable(); });
+document.getElementById('prevBtn').addEventListener('click', function(){ page=Math.max(1,page-1); renderTable(); });
+document.getElementById('nextBtn').addEventListener('click', function(){ page=Math.min(Math.ceil(filteredData().length/rowsPerPage)||1,page+1); renderTable(); });
+</script>
+</body>
+</html>
