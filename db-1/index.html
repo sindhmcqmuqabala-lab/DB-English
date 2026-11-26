@@ -27,6 +27,9 @@
     --shadow:0 1px 3px rgba(0,0,0,.3); --shadow-md:0 6px 20px rgba(0,0,0,.35);
   }
 }
+html[data-theme="light"]{--bg:#f1f5f9;--surface:#ffffff;--surface-2:#f8fafc;--border:#e2e8f0;--border-strong:#cbd5e1;--text:#0f172a;--text-2:#334155;--muted:#64748b;--muted-2:#94a3b8;--blue:#2563eb;--blue-soft:#eff6ff;--blue-border:#bfdbfe;--indigo:#4f46e5;--indigo-soft:#eef2ff;--emerald:#059669;--emerald-soft:#ecfdf5;--emerald-border:#a7f3d0;--amber-bg:#fef3c7;--amber-text:#92400e;--shadow:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);--shadow-md:0 6px 20px rgba(15,23,42,.08)}
+html[data-theme="dark"]{--bg:#0b1220;--surface:#111827;--surface-2:#0f172a;--border:#1f2937;--border-strong:#334155;--text:#f8fafc;--text-2:#e2e8f0;--muted:#94a3b8;--muted-2:#64748b;--blue:#60a5fa;--blue-soft:#1e3a5f;--blue-border:#1e40af;--indigo:#818cf8;--indigo-soft:#1e1b4b;--emerald:#34d399;--emerald-soft:#064e3b;--emerald-border:#065f46;--amber-bg:#451a03;--amber-text:#fde68a;--shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 6px 20px rgba(0,0,0,.35)}
+html[data-theme="light"] .stat-icon.blue{background:#dbeafe}html[data-theme="light"] .stat-icon.indigo{background:#e0e7ff}html[data-theme="light"] .stat-icon.amber{background:#fef3c7}html[data-theme="light"] .topic-btn.active .badge{background:#bfdbfe;color:#1e40af}html[data-theme="dark"] .stat-icon.blue{background:#1e3a5f}html[data-theme="dark"] .stat-icon.indigo{background:#312e81}html[data-theme="dark"] .stat-icon.amber{background:#451a03}html[data-theme="dark"] .topic-btn.active .badge{background:#1e40af;color:#fff}.theme-btn{padding:8px 14px;font-size:13px;font-weight:800;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);cursor:pointer;white-space:nowrap}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -162,6 +165,7 @@ a{color:var(--blue)}
       </nav>
       <label class="upload-btn" for="csvFile">⬆ Upload CSV</label>
       <input id="csvFile" type="file" accept=".csv" hidden>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle light and dark mode">&#9789; Dark</button>
     </div>
   </div>
 </header>
@@ -273,6 +277,10 @@ document.getElementById("sortCount").addEventListener("click",function(){state.s
 function parseCSV(text){var rows=[];var row=[];var cell="";var inQ=false;for(var i=0;i<text.length;i++){var ch=text[i];var nx=text[i+1];if(ch==='"'){if(inQ&&nx==='"'){cell+='"';i++}else inQ=!inQ}else if(ch===','&&!inQ){row.push(cell);cell=""}else if((ch==='\n'||(ch==='\r'&&nx==='\n'))&&!inQ){if(ch==='\r')i++;row.push(cell);if(row.some(function(c){return c.trim()!==""}))rows.push(row);row=[];cell=""}else cell+=ch}if(row.length||cell){row.push(cell);if(row.some(function(c){return c.trim()!==""}))rows.push(row)}if(rows.length<2)return[];var headers=rows[0].map(function(h){return h.trim()});var data=[];for(var r=1;r<rows.length;r++){var obj={};for(var j=0;j<headers.length;j++)obj[headers[j]]=rows[r][j]?rows[r][j].trim():"";if(obj.Year&&typeof obj.Year==="string")obj.Year=obj.Year.replace("-DEC","");if(obj.Year||obj.Topic)data.push(obj)}return data}
 document.getElementById("csvFile").addEventListener("change",function(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){var parsed=parseCSV(ev.target.result);var msg=document.getElementById("statusMsg");if(parsed.length){state.data=parsed;state.selectedTopic=null;state.selectedYear=null;state.trendTopic=null;state.search="";document.getElementById("searchInput").value="";renderAll();msg.textContent="Loaded "+parsed.length+" questions from "+file.name;switchTab("dashboard")}else{msg.textContent="Could not parse CSV — check headers include Year, Name, ANS, Topic."}};reader.readAsText(file);e.target.value=""});
 renderAll();
+</script>
+<script>
+function applyTheme(theme){document.documentElement.setAttribute("data-theme",theme);var b=document.getElementById("themeBtn");if(b)b.textContent=theme==="dark"?"\u2600\uFE0F Light":"\u263E Dark";try{localStorage.setItem("db1-theme",theme);}catch(e){}}
+(function(){var s=null;try{s=localStorage.getItem("db1-theme");}catch(e){}applyTheme(s||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));document.getElementById("themeBtn").addEventListener("click",function(){var c=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";applyTheme(c==="dark"?"light":"dark");});})();
 </script>
 </body>
 </html>

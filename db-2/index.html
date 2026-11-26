@@ -10,6 +10,9 @@
 <style>
 :root{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--text2:#334155;--muted:#64748b;--blue:#2563eb;--blue-soft:#eff6ff;--emerald:#059669;--emerald-soft:#ecfdf5;--amber:#d97706;--amber-soft:#fffbeb;--red:#dc2626;--red-soft:#fef2f2;--shadow:0 1px 3px rgba(15,23,42,.06)}
 @media (prefers-color-scheme: dark){:root{--bg:#0b1220;--surface:#111827;--border:#1f2937;--text:#f8fafc;--text2:#e2e8f0;--muted:#94a3b8;--blue:#60a5fa;--blue-soft:#1e3a5f;--emerald:#34d399;--emerald-soft:#064e3b;--amber:#fbbf24;--amber-soft:#451a03;--red:#f87171;--red-soft:#450a0a}}
+html[data-theme="light"]{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--text2:#334155;--muted:#64748b;--blue:#2563eb;--blue-soft:#eff6ff;--emerald:#059669;--emerald-soft:#ecfdf5;--amber:#d97706;--amber-soft:#fffbeb;--red:#dc2626;--red-soft:#fef2f2}
+html[data-theme="dark"]{--bg:#0b1220;--surface:#111827;--border:#1f2937;--text:#f8fafc;--text2:#e2e8f0;--muted:#94a3b8;--blue:#60a5fa;--blue-soft:#1e3a5f;--emerald:#34d399;--emerald-soft:#064e3b;--amber:#fbbf24;--amber-soft:#451a03;--red:#f87171;--red-soft:#450a0a}
+.theme-btn{position:fixed;top:12px;right:12px;z-index:60;padding:8px 14px;font-size:13px;font-weight:800;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(15,23,42,.12)}html[data-theme="light"] .btn{background:#f1f5f9;color:#334155}html[data-theme="dark"] .btn{background:#1f2937;color:#e2e8f0}
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
 button,select,input{font:inherit}
@@ -89,6 +92,7 @@ td.a{font-weight:600;color:var(--emerald);word-break:break-word}
 </style>
 </head>
 <body>
+<button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle light and dark mode">&#9789; Dark</button>
 
 <!-- Upload screen -->
 <div id="uploadScreen" class="center">
@@ -306,6 +310,10 @@ document.getElementById('topicSelect').addEventListener('change', function(e){ s
 document.getElementById('yearSelect').addEventListener('change', function(e){ selectedYear=e.target.value; page=1; renderTable(); });
 document.getElementById('prevBtn').addEventListener('click', function(){ page=Math.max(1,page-1); renderTable(); });
 document.getElementById('nextBtn').addEventListener('click', function(){ page=Math.min(Math.ceil(filteredData().length/rowsPerPage)||1,page+1); renderTable(); });
+</script>
+<script>
+function applyTheme(theme){document.documentElement.setAttribute("data-theme",theme);var b=document.getElementById("themeBtn");if(b)b.textContent=theme==="dark"?"\u2600\uFE0F Light":"\u263E Dark";try{localStorage.setItem("db2-theme",theme);}catch(e){}}
+(function(){var s=null;try{s=localStorage.getItem("db2-theme");}catch(e){}applyTheme(s||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));document.getElementById("themeBtn").addEventListener("click",function(){var c=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";applyTheme(c==="dark"?"light":"dark");});})();
 </script>
 </body>
 </html>
